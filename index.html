@@ -636,6 +636,36 @@ footer a{color:#fff}
   .pintas small{display:none}
 }
 
+/* potret pesantren: pita warna penuh, teks di kiri, foto lebar di kanan */
+.potret-band{background:var(--h900);color:#fff;margin-top:56px;padding:56px 0 60px;border-top:4px solid var(--emas);position:relative;overflow:hidden}
+.potret-band::before{content:"";position:absolute;right:-140px;top:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.07),rgba(255,255,255,0) 70%);pointer-events:none}
+.potret-band[hidden]{display:none}
+.potret-band .slider-dots{display:none}
+.potret-grid{display:grid;gap:22px;grid-template-columns:minmax(0,1fr);grid-template-areas:"teks" "slider" "ctrl";position:relative}
+.potret-teks{grid-area:teks}.potret-band .slider{grid-area:slider}.potret-ctrl{grid-area:ctrl}
+.potret-teks h2{color:#fff;font-size:clamp(1.5rem,2.6vw,2.1rem);margin:0 0 10px}
+.potret-teks p{color:var(--h200);margin:0;max-width:36ch;line-height:1.55}
+.potret-band .slider{margin-top:0;background:rgba(0,0,0,.25);border-radius:var(--r3);box-shadow:0 18px 40px rgba(0,0,0,.28)}
+.potret-band .slide{aspect-ratio:16/9}
+.potret-band .slide-info{padding:60px 28px 22px}
+.potret-ctrl{display:flex;align-items:center;gap:10px}
+.pc-btn{width:46px;height:46px;border-radius:50%;border:1.5px solid rgba(255,255,255,.45);background:transparent;color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background-color .18s,color .18s,border-color .18s}
+.pc-btn svg{width:20px;height:20px}
+.pc-btn:hover{background:#fff;color:var(--h900);border-color:#fff}
+.pc-btn[hidden]{display:none}
+.pc-hitung{margin-left:8px;color:var(--h200);font-variant-numeric:tabular-nums;font-size:.95rem}
+@media (min-width:1000px){
+  .potret-grid{grid-template-columns:minmax(240px,.72fr) minmax(0,2.28fr);grid-template-areas:"teks slider" "ctrl slider";column-gap:52px;row-gap:26px;align-items:start}
+  .potret-teks{align-self:end}.potret-ctrl{align-self:start}
+}
+@media (max-width:640px){.potret-band{padding:40px 0 44px;margin-top:40px}.potret-band .slide-info{padding:44px 16px 14px}.potret-band .slide-info b{font-size:1rem}}
+.item-potret{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;align-items:start;padding:12px;border:1px solid var(--garis);border-radius:var(--r);background:var(--kertas);margin-bottom:10px}
+.item-potret .contoh{width:96px;height:64px;border:1px solid var(--garis);border-radius:var(--r);background:var(--h100);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.item-potret .contoh img{width:100%;height:100%;object-fit:cover}
+.item-potret .kolom-potret{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.item-potret .kolom-potret .fl.penuh{grid-column:1/-1}
+@media (max-width:700px){.item-potret{grid-template-columns:1fr}.item-potret .kolom-potret{grid-template-columns:1fr}}
+
 /* ====================== GERAK & TRANSISI (lembut, singkat) ====================== */
 :root{--ease:cubic-bezier(.2,.7,.2,1);--ease-keluar:cubic-bezier(.4,0,1,1)}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
@@ -961,7 +991,7 @@ const CFG_BAWAAN = {
   situs: { judul: 'Data Pesantren Muhammadiyah', subjudul: 'LP2 PP Muhammadiyah', deskripsi: 'Direktori dan basis data pesantren Muhammadiyah se-Indonesia, dikelola LP2 PP Muhammadiyah.', logo: 'warna.png', favicon: 'warna.png' },
   tema: { preset: 'hijau', warna_utama: '#0d3a2c', warna_aksen: '#d6a21f', warna_latar: '#f5f7f4', font: 'atkinson', ukuran: 'normal', sudut: 'sedang', header: 'putih' },
   header: { utilbar_tampil: true, utilbar_teks: 'Lembaga Pesantren Muhammadiyah Pusat', tampil_statistik: true, tombol_ukuran: true, menu: [] },
-  beranda: { hero_judul: 'Data pesantren Muhammadiyah se-Indonesia', hero_lead: 'Cari pesantren, baca profilnya, dan lihat sebarannya di tiap provinsi.', tampil_cepat: true, tampil_angka: true, tampil_sorotan: true, jumlah_sorotan: '6', sorot_kolom: '3', tampil_potret: true, hero_gambar: '', hero_jelas: '35' },
+  beranda: { hero_judul: 'Data pesantren Muhammadiyah se-Indonesia', hero_lead: 'Cari pesantren, baca profilnya, dan lihat sebarannya di tiap provinsi.', tampil_cepat: true, tampil_angka: true, tampil_sorotan: true, jumlah_sorotan: '6', sorot_kolom: '3', potret_judul: 'Potret pesantren', potret_lede: 'Bangunan dan kegiatan dari pesantren Muhammadiyah di berbagai daerah.', potret_mode: 'gabung', potret_kustom: [], tampil_potret: true, hero_gambar: '', hero_jelas: '35' },
   footer: { deskripsi: 'Basis data pesantren Muhammadiyah se-Indonesia yang dikelola Lembaga Pesantren Muhammadiyah Pusat. Data diperbarui oleh admin tiap pesantren dan diverifikasi operator.', tampil_provinsi: true, kolom_judul: 'Tautan', kolom_link: [], alamat: '', email: '', telepon: '', facebook: '', instagram: '', youtube: '', tiktok: '', x: '', website: '', copyright: 'LP2 PP Muhammadiyah' },
   pengumuman: { tampil: false, teks: '', link: '', warna: 'emas' }
 };
@@ -1440,14 +1470,14 @@ async function pageBeranda({ el, ok }) {
     <div class="judul-bagian"><h2>Pesantren dengan santri terbanyak</h2><a href="#/direktori?urut=santri">Selengkapnya</a></div>
     <ul class="sorot-grid" style="--kol:${kolS}">${sorot.map(t => `<li><a class="sorot" href="#/pesantren/${esc(t.id)}" data-sid="${esc(t.id)}"><div class="sorot-foto" aria-hidden="true">${esc(inisial(t.nama))}</div><div class="sorot-isi"><h3>${esc(t.nama)}</h3><span class="kecil">${esc(t.provinsi)}</span><b>${ang(t.santri)} santri</b></div></a></li>`).join('')}</ul>
   </div></section>` : ''}
-  ${B.tampil_potret ? `<section class="bagian" id="potret" hidden><div class="wrap"><h2>Potret pesantren</h2>
-    <div class="slider" id="slider" role="region" aria-roledescription="carousel" aria-label="Potret pesantren">
+  ${B.tampil_potret ? `<section class="potret-band" id="potret" hidden aria-label="${esc(B.potret_judul || 'Potret pesantren')}"><div class="wrap"><div class="potret-grid">
+    <div class="potret-teks"><h2>${esc(B.potret_judul || 'Potret pesantren')}</h2>${B.potret_lede ? `<p>${esc(B.potret_lede)}</p>` : ''}</div>
+    <div class="slider" id="slider" role="region" aria-roledescription="carousel" aria-label="${esc(B.potret_judul || 'Potret pesantren')}">
       <div class="slider-track" id="slider-track" tabindex="0"></div>
-      <button class="slider-btn prev" id="sl-prev" type="button" aria-label="Foto sebelumnya"></button>
-      <button class="slider-btn next" id="sl-next" type="button" aria-label="Foto berikutnya"></button>
     </div>
-    <div class="slider-dots" id="slider-dots"></div>
-  </div></section>` : ''}`;
+    <div class="potret-ctrl"><button class="pc-btn" id="sl-prev" type="button" aria-label="Foto sebelumnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="pc-btn" id="sl-next" type="button" aria-label="Foto berikutnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="pc-hitung" id="sl-hitung" aria-live="off"></span></div>
+    <div class="slider-dots" id="slider-dots" hidden></div>
+  </div></div></section>` : ''}`;
   $('#form-cari').onsubmit = e => { e.preventDefault(); go('/direktori' + qs({ q: $('#c-q').value.trim(), provinsi: $('#c-prov').value })); };
   if (B.tampil_sorotan || B.tampil_potret) muatFotoSorotan(sorot, ok);
 }
@@ -1488,12 +1518,12 @@ function pasangSlider() {
   const slides = () => $$('.slide', tr);
   const idx = () => Math.round(tr.scrollLeft / Math.max(1, tr.clientWidth));
   const pergi = i => { const n = slides().length; if (!n) return; i = (i + n) % n; tr.scrollTo({ left: i * tr.clientWidth, behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' }); };
-  const gambarDots = () => { const n = slides().length, c = idx(); dots.innerHTML = n > 1 ? slides().map((_, i) => `<button type="button" data-i="${i}" aria-label="Foto ${i + 1} dari ${n}" ${i === c ? 'aria-current="true"' : ''}></button>`).join('') : ''; $('#sl-prev').hidden = $('#sl-next').hidden = n < 2; };
+  const gambarDots = () => { const n = slides().length, c = idx(); dots.innerHTML = n > 1 ? slides().map((_, i) => `<button type="button" data-i="${i}" aria-label="Foto ${i + 1} dari ${n}" ${i === c ? 'aria-current="true"' : ''}></button>`).join('') : ''; $('#sl-prev').hidden = $('#sl-next').hidden = n < 2; const h = $('#sl-hitung'); if (h) h.textContent = n > 1 ? `${c + 1} / ${n}` : ''; };
   $('#sl-prev').onclick = () => pergi(idx() - 1);
   $('#sl-next').onclick = () => pergi(idx() + 1);
   dots.onclick = e => { const b = e.target.closest('[data-i]'); if (b) pergi(+b.dataset.i); };
   let raf = 0;
-  tr.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const c = idx(); $$('button', dots).forEach((b, i) => { if (i === c) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); }); }); });
+  tr.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { const c = idx(); $$('button', dots).forEach((b, i) => { if (i === c) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); }); const h = $('#sl-hitung'), n = slides().length; if (h) h.textContent = n > 1 ? `${c + 1} / ${n}` : ''; }); });
   tr.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); pergi(idx() + 1); } if (e.key === 'ArrowLeft') { e.preventDefault(); pergi(idx() - 1); } });
   const box = $('#slider'); let jeda = false;
   ['mouseenter', 'focusin', 'touchstart'].forEach(ev => box.addEventListener(ev, () => { jeda = true; }, { passive: true }));
@@ -1504,8 +1534,11 @@ function pasangSlider() {
 }
 
 async function muatFotoSorotan(sorot, ok) {
+  const B = S.cfg.beranda, mode = B.potret_mode === 'kustom' ? 'kustom' : 'gabung';
+  const kustom = (B.potret_kustom || []).map(it => ({ thumb: asetAman(it.gambar), nama: it.judul || '', prov: '', url: it.url ? (tautan(it.url) || null) : null })).filter(x => x.thumb);
   let hasil;
-  if (sorot.length && sorot.every(t => Array.isArray(t.slide))) {
+  if (mode === 'kustom') hasil = [];
+  else if (sorot.length && sorot.every(t => Array.isArray(t.slide))) {
     // data foto sudah ikut di statistik (cache server): tidak perlu memanggil profil satu per satu
     hasil = sorot.map(t => ({ id: t.id, nama: t.nama, kab: t.provinsi || '', sampul: t.sampul || '', slide: t.slide }));
   } else {
@@ -1513,22 +1546,30 @@ async function muatFotoSorotan(sorot, ok) {
     hasil = prof.filter(Boolean).map(({ t, foto }) => { const sp = pilihSampul(foto); return { id: t.id, nama: t.nama, kab: t.provinsi || '', sampul: sp ? sp.f.thumb : '', slide: foto.slice(1, 3).map(f => f.thumb) }; });
   }
   if (!ok()) return;
-  const semua = [];
+  const semua = kustom.map(k => ({ kustom: true, nama: k.nama, prov: k.prov, thumb: k.thumb, url: k.url }));
   hasil.forEach(h => {
     const kartu = $(`[data-sid="${h.id}"] .sorot-foto`);
     if (kartu && h.sampul) { const im = new Image(); im.alt = ''; im.onerror = () => im.remove(); im.src = h.sampul; kartu.appendChild(im); }
-    h.slide.forEach(th => semua.push({ id: h.id, nama: h.nama, prov: h.kab, thumb: th }));
   });
+  hasil.forEach(h => h.slide.forEach(th => semua.push({ id: h.id, nama: h.nama, prov: h.kab, thumb: th })));
   const gambarDots = pasangSlider(); if (!gambarDots) return;
   const tr = $('#slider-track');
-  semua.slice(0, 8).forEach(f => {
-    const im = new Image(); im.alt = 'Foto ' + f.nama;
+  const batas = kustom.length + (mode === 'kustom' ? 0 : 8);
+  const urut = new Map();
+  semua.slice(0, batas).forEach((f, i) => {
+    const im = new Image(); im.alt = f.nama ? 'Foto ' + f.nama : 'Foto pesantren';
     im.onload = () => {
-      const a = document.createElement('a'); a.className = 'slide'; a.href = '#/pesantren/' + f.id;
-      a.setAttribute('role', 'group'); a.setAttribute('aria-roledescription', 'slide');
+      const a = document.createElement(f.kustom ? (f.url ? 'a' : 'div') : 'a'); a.className = 'slide';
+      if (f.kustom) { if (f.url) { a.href = f.url.href; if (f.url.ext) { a.target = '_blank'; a.rel = 'noopener noreferrer'; } } }
+      else a.href = '#/pesantren/' + f.id;
+      a.setAttribute('role', 'group'); a.setAttribute('aria-roledescription', 'slide'); a.dataset.o = String(i);
       a.innerHTML = '<span class="slide-info"><b></b><small></small></span>';
       $('b', a).textContent = f.nama; $('small', a).textContent = f.prov;
-      a.insertBefore(im, a.firstChild); tr.appendChild(a);
+      if (!f.nama && !f.prov) $('.slide-info', a).remove();
+      a.insertBefore(im, a.firstChild);
+      // jaga urutan: foto kustom dahulu, lalu foto pesantren, walau selesai dimuat tak berurutan
+      const lain = $$('.slide', tr).find(x => +x.dataset.o > i);
+      if (lain) tr.insertBefore(a, lain); else tr.appendChild(a);
       $('#potret').hidden = false; gambarDots();
     };
     im.src = f.thumb;
@@ -2569,6 +2610,23 @@ async function pagePengaturan({ el, ok }) {
       <section class="form-seksi"><h2>Bagian yang ditampilkan</h2><div class="grid-form">
       <div class="fl">${cek('beranda.tampil_cepat', 'Kotak tautan cepat')}</div><div class="fl">${cek('beranda.tampil_angka', 'Ringkasan angka')}</div>
       <div class="fl">${cek('beranda.tampil_sorotan', 'Pesantren dengan santri terbanyak')}</div><div class="fl">${cek('beranda.tampil_potret', 'Slide potret pesantren')}</div>
+      </div></section>
+      <section class="form-seksi"><h2>Slide potret pesantren</h2><div class="grid-form">
+      ${f('beranda.potret_judul', 'Judul bagian', { max: 60 })}
+      <div></div>
+      ${f('beranda.potret_lede', 'Keterangan singkat', { area: 2, penuh: true, max: 160, hint: 'Tampil di bawah judul. Boleh dikosongkan.' })}
+      <div class="fl penuh"><span class="lab">Sumber foto</span>${radio('beranda.potret_mode', 'pmode', [['gabung', 'Foto kustom, lalu foto dari pesantren'], ['kustom', 'Hanya foto kustom']])}</div>
+      <div class="fl penuh"><span class="lab">Foto kustom <span class="muted kecil">(${(draf.beranda.potret_kustom || []).length} dari 8)</span></span>
+        <span class="hint">Tambahkan foto sendiri, misalnya kegiatan LP2 PP. Ukuran ideal <b>1600 × 900 piksel</b> (16:9), JPG atau WEBP, maksimal 2 MB. Foto kustom tampil lebih dulu.</span>
+        <div id="daftar-potret">${(draf.beranda.potret_kustom || []).map((it, i) => { const src = asetAman(it.gambar), P = `beranda.potret_kustom.${i}.gambar`; return `<div class="item-potret"><div class="contoh">${src ? `<img src="${esc(src)}" alt="" onerror="this.remove()">` : ''}</div><div class="kolom-potret">
+          <div class="fl"><label for="pt_j${i}">Judul foto</label><input id="pt_j${i}" type="text" maxlength="80" data-l="beranda.potret_kustom" data-i="${i}" data-k="judul" value="${esc(it.judul || '')}"></div>
+          <div class="fl"><label for="pt_u${i}">Tautan saat diklik (opsional)</label><input id="pt_u${i}" type="text" data-l="beranda.potret_kustom" data-i="${i}" data-k="url" value="${esc(it.url || '')}" placeholder="https://… atau #/direktori"></div>
+          <div class="fl"><label for="pt_g${i}">Alamat gambar</label><input id="pt_g${i}" type="text" data-l="beranda.potret_kustom" data-i="${i}" data-k="gambar" value="${esc(it.gambar || '')}" placeholder="Unggah di samping, atau tempel tautan"></div>
+          <div class="fl"><label for="pt_f${i}">Unggah dari komputer</label><input id="pt_f${i}" type="file" data-aset="${P}" accept="image/png,image/jpeg,image/webp"></div></div>
+          <button class="btn bahaya kecil" type="button" data-hapus="beranda.potret_kustom" data-i="${i}">Hapus</button></div>`; }).join('') || '<p class="muted kecil">Belum ada foto kustom.</p>'}</div>
+        ${(draf.beranda.potret_kustom || []).length < 8 ? '<div style="margin-top:10px"><button class="btn sek kecil" type="button" id="tambah-potret">Tambah foto</button></div>' : ''}</div>
+      </div></section>
+      <section class="form-seksi"><h2>Pesantren dengan santri terbanyak</h2><div class="grid-form">
       <div class="fl"><label for="c_kol">Kartu per baris</label><span class="hint">Berlaku di layar lebar. Di tablet dan HP otomatis 2 atau 1 kolom.</span><select id="c_kol" data-p="beranda.sorot_kolom">${[['2', '2 kartu (kelipatan 2)'], ['3', '3 kartu (bawaan, kelipatan 3)'], ['4', '4 kartu (kelipatan 4)']].map(([v, t]) => `<option value="${v}" ${String(draf.beranda.sorot_kolom || '3') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
       <div class="fl"><label for="c_jumlah">Jumlah pesantren pada sorotan</label><span class="hint">Selalu memenuhi baris penuh agar tampilan seimbang.</span><select id="c_jumlah" data-p="beranda.jumlah_sorotan">${[1, 2, 3].map(b => String(b * (parseInt(draf.beranda.sorot_kolom, 10) || 3))).map(n => `<option value="${n}" ${String(draf.beranda.jumlah_sorotan) === n ? 'selected' : ''}>${n} pesantren</option>`).join('')}</select></div>
       </div></section>`,
@@ -2622,6 +2680,7 @@ async function pagePengaturan({ el, ok }) {
     if (pr) { const k = pr.dataset.preset, P = PRESET[k]; Object.assign(draf.tema, { preset: k, warna_utama: P.u, warna_aksen: P.a, warna_latar: P.l }); terapkan(); gambar(); }
     if (tb) { cfgGet(draf, tb.dataset.tambah).push({ label: '', url: '', baru: false }); gambar(); terapkan(); const ins = $$('input[data-k="label"]', form); if (ins.length) ins[ins.length - 1].focus(); }
     if (hp) { cfgGet(draf, hp.dataset.hapus).splice(+hp.dataset.i, 1); gambar(); terapkan(); }
+    if (e.target.closest('#tambah-potret')) { const arr = draf.beranda.potret_kustom || (draf.beranda.potret_kustom = []); if (arr.length < 8) arr.push({ gambar: '', judul: '', url: '' }); gambar(); terapkan(); const ins = $$('input[data-k="judul"]', form); if (ins.length) ins[ins.length - 1].focus(); }
   });
   form.addEventListener('change', async e => {
     const inp = e.target.closest('[data-aset]'); if (!inp || !inp.files.length) return;
