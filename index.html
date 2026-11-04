@@ -391,7 +391,15 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
   .angka-sempit{display:none}
 }
 .hero-band .lead{color:var(--h200)}
-.hero-band .cari input,.hero-band .cari select{border-color:transparent}
+.hero-band .cari{max-width:700px;gap:8px}
+.hero-band .cari input,.hero-band .cari select{min-height:44px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:#fff;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);transition:background-color .2s,border-color .2s,color .2s,box-shadow .2s}
+.hero-band .cari input::placeholder{color:rgba(255,255,255,.72);opacity:1}
+.hero-band .cari select option{color:var(--tinta,#1b2b22);background:#fff}
+.hero-band .cari input:hover,.hero-band .cari select:hover,.hero-band .cari input:focus,.hero-band .cari select:focus{background:#fff;border-color:#fff;color:var(--tinta,#1b2b22)}
+.hero-band .cari input:hover::placeholder,.hero-band .cari input:focus::placeholder{color:#6b7a72}
+.hero-band .cari .btn{min-height:44px;padding:8px 16px;gap:7px;opacity:.88}
+.hero-band .cari .btn svg{width:17px;height:17px;flex:none}
+.hero-band .cari:hover .btn,.hero-band .cari:focus-within .btn{opacity:1}
 .hero-band .btn{background:var(--emas);border-color:var(--emas);color:var(--on-emas)}
 .hero-band .btn:hover{background:var(--emas-hover);color:var(--on-emas)}
 .judul-bagian{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -554,6 +562,13 @@ dialog.dlg::backdrop{background:rgba(13,26,20,.55)}
 .dlg-isi h2{font-size:1.2rem;margin-bottom:10px}
 .dlg-aksi{display:flex;justify-content:flex-end;gap:10px;padding:0 24px 20px;flex-wrap:wrap}
 .rahasia{font:600 1.35rem/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;background:var(--emas-bg);border:1px dashed var(--emas);padding:12px 14px;border-radius:var(--r);margin:12px 0;word-break:break-all;user-select:all}
+#gulir{position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:90;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;padding:0;border:1px solid rgba(255,255,255,.35);background:rgba(15,60,40,.38);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);cursor:pointer;opacity:0;visibility:hidden;transform:translateY(8px);transition:opacity .25s,transform .25s,visibility .25s,background-color .2s}
+#gulir.ada{opacity:.5;visibility:visible;transform:none}
+#gulir.ada:hover,#gulir.ada:focus-visible{opacity:1;background:var(--h800)}
+#gulir svg{width:20px;height:20px;transition:transform .25s}
+#gulir.turun svg{transform:rotate(180deg)}
+@media (hover:none){#gulir.ada{opacity:.62}}
+@media print{#gulir{display:none!important}}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:100;display:grid;gap:8px;width:min(440px,92vw);pointer-events:none}
 .toast{background:var(--h900);color:#fff;padding:12px 16px;border-radius:var(--r2);box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:auto;font-size:.95rem}
 .toast.galat-t{background:var(--merah)}
@@ -571,6 +586,8 @@ footer a{color:#fff}
 }
 @media (max-width:640px){
   .cari{grid-template-columns:1fr}
+  .hero-band .cari{grid-template-columns:minmax(0,1fr) auto}
+  .hero-band .cari .fl:first-child{grid-column:1/-1}
   .grid-form{grid-template-columns:1fr}
   .baris{grid-template-columns:1fr auto;gap:8px 14px}
   .baris .jenjang{grid-column:1/-1;grid-row:2}
@@ -769,6 +786,7 @@ function logoGagal(img){const n=+(img.dataset.n||0);if(/warna\.png/.test(img.src
 <div id="pratinjau-bar" class="pratinjau-bar" hidden></div>
 <div id="bar-muat" aria-hidden="true"></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<button type="button" id="gulir" aria-label="Gulir ke bawah" title="Gulir ke bawah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
 <div id="cetak-dilarang">Pencetakan halaman ini hanya tersedia bagi pengelola yang telah masuk.</div>
 
 <script>
@@ -1447,7 +1465,7 @@ async function pageBeranda({ el, ok }) {
     <form class="cari" id="form-cari" role="search">
       <div class="fl"><label class="sr" for="c-q">Nama pesantren atau daerah</label><input id="c-q" type="search" placeholder="Nama pesantren atau daerah" autocomplete="off"></div>
       <div class="fl"><label class="sr" for="c-prov">Provinsi</label><select id="c-prov"><option value="">Semua provinsi</option>${opsiProv}</select></div>
-      <button class="btn" type="submit">Cari pesantren</button>
+      <button class="btn" type="submit" aria-label="Cari pesantren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>Cari</button>
     </form>
   </div>${B.tampil_angka ? `<dl class="hero-sekilas" aria-label="Sekilas data">
       <div><dt>Pesantren terdata</dt><dd>${ang(r.pesantren)}</dd></div>
@@ -2751,6 +2769,31 @@ pasangSkala();
     renderNav(); render();
     if (!selesai) { await p; if (berubah && !S.cfgDraftAktif) { renderNav(); render(); } }
   }
+  // tombol gulir cepat: panah naik bila sudah turun, panah turun bila masih di atas
+  (function () {
+    const b = document.getElementById('gulir'); if (!b) return;
+    const doc = document.documentElement;
+    let arah = 'turun', tick = false;
+    const hitung = () => {
+      tick = false;
+      const maks = doc.scrollHeight - innerHeight, y = scrollY;
+      if (maks < innerHeight * 0.6) { b.classList.remove('ada'); return; }
+      arah = (y > maks * 0.45 || y > 600) ? 'naik' : 'turun';
+      const t = arah === 'naik' ? 'Gulir ke atas' : 'Gulir ke bawah';
+      b.classList.add('ada'); b.classList.toggle('turun', arah === 'turun');
+      b.setAttribute('aria-label', t); b.title = t;
+    };
+    const minta = () => { if (!tick) { tick = true; requestAnimationFrame(hitung); } };
+    addEventListener('scroll', minta, { passive: true });
+    addEventListener('resize', minta);
+    addEventListener('hashchange', () => setTimeout(minta, 350));
+    new MutationObserver(minta).observe(document.getElementById('utama'), { childList: true, subtree: true });
+    b.addEventListener('click', () => {
+      const maks = doc.scrollHeight - innerHeight;
+      scrollTo({ top: arah === 'naik' ? 0 : maks, behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth' });
+    });
+    minta();
+  })();
 })();
 </script>
 </body>
