@@ -685,6 +685,41 @@ footer a{color:#fff}
 .item-potret .kolom-potret .fl.penuh{grid-column:1/-1}
 @media (max-width:700px){.item-potret{grid-template-columns:1fr}.item-potret .kolom-potret{grid-template-columns:1fr}}
 
+
+/* KELOLA ISIAN */
+.isian-bantu{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:14px 0 18px}
+.isian-bantu .cari-isian{flex:1 1 240px;max-width:380px}
+.isian-tambah{border:1px solid var(--garis);border-radius:var(--r2);background:var(--putih);margin-bottom:22px}
+.isian-tambah>summary{cursor:pointer;list-style:none;padding:13px 18px;font:700 1rem/1.2 var(--judul);color:var(--h900);display:flex;align-items:center;gap:10px}
+.isian-tambah>summary::-webkit-details-marker{display:none}
+.isian-tambah>summary::before{content:"+";display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--h800);color:#fff;font:700 1rem/1 var(--isi)}
+.isian-tambah[open]>summary::before{content:"–"}
+.isian-tambah[open]>summary{border-bottom:1px solid var(--garis2)}
+.isian-seksi{margin-bottom:26px}
+.isian-seksi>h2{font-size:1.1rem;padding-bottom:7px;border-bottom:2px solid var(--h900);margin-bottom:10px;display:flex;align-items:baseline;gap:10px}
+.isian-seksi>h2 small{font:400 .875rem var(--isi);color:var(--tinta3)}
+.isian-daftar{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.isian{border:1px solid var(--garis);border-radius:var(--r2);background:var(--putih);padding:12px 14px}
+.isian.mati{background:var(--kertas);border-style:dashed}
+.isian.mati .isian-judul input{color:var(--tinta3)}
+.isian-utama{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:end}
+.isian-aksi{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.isian-aksi .ikon{width:34px;height:34px;min-height:34px;padding:0;display:grid;place-items:center;border:1px solid var(--h300);border-radius:var(--r);background:var(--putih);color:var(--h800);cursor:pointer}
+.isian-aksi .ikon:hover:not(:disabled){background:var(--h50)}
+.isian-aksi .ikon:disabled{opacity:.35;cursor:default}
+.isian-aksi .ikon svg{width:16px;height:16px}
+.saklar{display:inline-flex;align-items:center;gap:7px;font-size:.92rem;cursor:pointer;white-space:nowrap}
+.saklar input{width:18px;height:18px;accent-color:var(--h700)}
+.isian-info{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin-top:8px;font-size:.875rem;color:var(--tinta3)}
+.isian-info .chip{font-size:.78rem}
+.isian-rinci{margin-top:12px;padding-top:12px;border-top:1px solid var(--garis2);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 18px}
+.isian-rinci[hidden]{display:none}
+.isian-rinci .penuh{grid-column:1/-1}
+.isian-rinci .cek{display:flex;gap:18px;flex-wrap:wrap}
+.isian-catatan{font-size:.875rem;color:var(--tinta2);line-height:1.4}
+@media (max-width:640px){.isian-utama{grid-template-columns:1fr}.isian-rinci{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){.isian-rinci:not([hidden]){animation:munculTurun .2s var(--ease) both}}
+
 /* ====================== GERAK & TRANSISI (lembut, singkat) ====================== */
 :root{--ease:cubic-bezier(.2,.7,.2,1);--ease-keluar:cubic-bezier(.4,0,1,1)}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
@@ -853,7 +888,9 @@ const HINT = {
   catatan_isian_lama: 'Tulisan asli dari formulir lama. Pindahkan angkanya ke kolom yang sesuai bila perlu.'
 };
 const SATUAN = { ha: 'ha', m2: 'm²', orang: 'orang', judul: 'judul' };
-const label = c => LABEL[c.kolom] || String(c.label || c.kolom).replace(/\s*\(.*$/, '').replace(/\.\s*Contoh.*$/i, '').trim();
+const satuanTeks = c => SATUAN[c.satuan] || c.satuan || '';
+const petunjukDari = c => c.petunjuk || HINT[c.kolom] || '';
+const label = c => c.tampil || LABEL[c.kolom] || String(c.label || c.kolom).replace(/\s*\(.*$/, '').replace(/\.\s*Contoh.*$/i, '').trim();
 
 function toast(msg, jenis) {
   const el = document.createElement('div');
@@ -928,7 +965,7 @@ const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfi
    Setiap aksi tulis menghapus seluruh cache; tombol "Perbarui data" juga menghapusnya. */
 const CACHE_TTL = 5 * 60 * 1000, CACHE_PRE = 'lp2pp.c.', CACHE_MAKS = 400000;
 const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan']);
-const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'buatUndangan', 'putuskanUndangan', 'changePassword']);
+const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'simpanIsian', 'tambahIsian', 'buatUndangan', 'putuskanUndangan', 'changePassword']);
 const cacheMem = {}, cacheJalan = {};
 function cacheKey(action, params) {
   const j = JSON.stringify(params || {}); let h = 5381; for (let i = 0; i < j.length; i++) h = ((h << 5) + h + j.charCodeAt(i)) | 0;
@@ -1126,6 +1163,7 @@ const ROUTES = [
   [/^\/panel\/tambah$/, pageTambah],
   [/^\/panel\/pengguna$/, pagePengguna],
   [/^\/panel\/review$/, pageReview],
+  [/^\/panel\/isian$/, pageIsian],
   [/^\/panel\/pengaturan$/, pagePengaturan],
   [/^\/panel\/log$/, pageLog]
 ];
@@ -1697,7 +1735,7 @@ function pilihSampul(foto) {
 }
 function nilaiHtml(c, v) {
   if (v === '' || v === null || v === undefined) return '<span class="kosong">Belum diisi</span>';
-  const sat = SATUAN[c.satuan] ? ' ' + SATUAN[c.satuan] : '';
+  const sat = satuanTeks(c) ? ' ' + satuanTeks(c) : '';
   switch (c.tipe) {
     case 'angka': case 'desimal': return esc(ang(v)) + esc(sat);
     case 'tahun': return esc(v);
@@ -2003,9 +2041,9 @@ function periksaAturan(root, hanya) {
 function kolomPenuh(c) { return c.tipe === 'teks_panjang' || c.tipe === 'multi' || ['alamat', 'jenis_unit_usaha', 'produk_unggulan', 'catatan_migrasi'].includes(c.kolom); }
 function fieldForm(c, v, meta, ro, paksaPenuh) {
   const id = 'f_' + c.kolom, lab = label(c), wajib = c.wajib ? '<span class="wajib" aria-hidden="true">*</span>' : '';
-  const hint = HINT[c.kolom] ? `<span class="hint" id="h_${c.kolom}">${esc(HINT[c.kolom])}</span>` : '';
+  const hint = petunjukDari(c) ? `<span class="hint" id="h_${c.kolom}">${esc(petunjukDari(c))}</span>` : '';
   const dis = ro ? 'disabled' : '';
-  const desc = HINT[c.kolom] ? `aria-describedby="h_${c.kolom}"` : '';
+  const desc = petunjukDari(c) ? `aria-describedby="h_${c.kolom}"` : '';
   const penuh = (kolomPenuh(c) || paksaPenuh) ? ' penuh' : '';
   let ctrl = '';
   const ops = (meta.opsi[c.opsi] || []);
@@ -2024,7 +2062,7 @@ function fieldForm(c, v, meta, ro, paksaPenuh) {
     const kunci = A ? `data-aturan="${jn}" ${A.im ? `inputmode="${A.im}"` : ''} ${A.ph && !['teks'].includes(jn) ? `placeholder="${esc(A.ph)}"` : ''} ${['email', 'url'].includes(jn) ? 'autocapitalize="off" spellcheck="false"' : ''}` : '';
     const list = ['kab_kota', 'kecamatan'].includes(c.kolom) ? `list="dl_${c.kolom}"` : '';
     const inp = `<input id="${id}" type="text" ${kunci} ${list} value="${esc(v)}" ${dis} ${desc} autocomplete="off">`;
-    const suf = SATUAN[c.satuan] && c.tipe !== 'angka' ? SATUAN[c.satuan] : (c.satuan === 'orang' ? 'orang' : '');
+    const suf = c.satuan && !SATUAN[c.satuan] ? c.satuan : (SATUAN[c.satuan] && c.tipe !== 'angka' ? SATUAN[c.satuan] : (c.satuan === 'orang' ? 'orang' : ''));
     ctrl = suf ? `<div class="sufiks">${inp}<span>${esc(suf)}</span></div>` : inp;
     if (list) ctrl += `<datalist id="dl_${c.kolom}"></datalist>`;
   }
@@ -2279,7 +2317,7 @@ async function siapkanBerkas(file) {
    ==================================================================== */
 function tabPanel(aktif) {
   const t = [['/panel', 'Daftar pesantren'], ['/panel/tambah', 'Tambah pesantren'], ['/panel/pengguna', 'Pengguna'], ['/panel/review', 'Tinjau data lama'], ['/panel/log', 'Riwayat perubahan']];
-  if (S.user && S.user.role === 'superadmin') t.push(['/panel/pengaturan', 'Pengaturan situs']);
+  if (S.user && S.user.role === 'superadmin') { t.push(['/panel/isian', 'Kelola isian']); t.push(['/panel/pengaturan', 'Pengaturan situs']); }
   return `<nav class="tab-panel" aria-label="Menu panel">${t.map(([p, n]) => `<a href="#${p}" ${p === aktif ? 'aria-current="page"' : ''}>${n}</a>`).join('')}</nav>`;
 }
 function perluStaf(el) {
@@ -2729,6 +2767,180 @@ async function pagePengaturan({ el, ok }) {
       S.cfgDraftAktif = false; S.pratinjau = false; S.draf = null; S.cfg = gabung(CFG_BAWAAN, S.cfgServer); terapkanConfig(); renderNav();
       toast('Pengaturan situs disimpan.'); render();
     } catch (x) { if (!x.ditangani) toast(x.message, 'galat'); b.disabled = false; b.textContent = 'Simpan pengaturan'; }
+  };
+}
+
+/* ====================================================================
+   KELOLA ISIAN (super admin): ubah judul, sembunyikan, tambah. Tidak ada hapus.
+   ==================================================================== */
+const JENIS_ISIAN = [['teks', 'Teks pendek'], ['teks_panjang', 'Teks panjang (paragraf)'], ['angka', 'Angka bulat'], ['desimal', 'Angka desimal'], ['tahun', 'Tahun'], ['ya_tidak', 'Ya / Tidak'], ['sudah_belum', 'Sudah / Belum'], ['pilihan', 'Pilihan (satu jawaban)'], ['multi', 'Pilihan ganda'], ['email', 'Email'], ['url', 'Tautan'], ['telp', 'Nomor telepon']];
+const NAMA_JENIS = Object.fromEntries(JENIS_ISIAN);
+const IK_NAIK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';
+const IK_TURUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+
+async function pageIsian({ el, ok }) {
+  if (!perluStaf(el)) return;
+  const kepala = `<div class="wrap"><div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Kelola isian</h1></div>${tabPanel('/panel/isian')}`;
+  if (S.user.role !== 'superadmin') { el.innerHTML = kepala + '<div class="galat">Kelola isian khusus super admin.</div></div>'; return; }
+  document.title = 'Kelola isian — ' + judulSitus();
+  el.innerHTML = muat();
+  let K = await api('kelolaIsian'); if (!ok()) return;
+  let daftar = [], terbuka = new Set(), cari = '';
+  const ringkas = c => ({ tampil: c.tampil || '', petunjuk: c.petunjuk || '', seksi: c.seksi, satuan: c.satuan || '', wajib: !!c.wajib, vis: c.vis, editor: c.editor, aktif: !!c.aktif, urutan: Number(c.urutan) });
+  const muatData = () => { daftar = K.kolom.map((c, i) => Object.assign({}, c, { _i: i, _awal: JSON.stringify(ringkas(c)) })); };
+  const berubah = c => JSON.stringify(ringkas(c)) !== c._awal;
+  const urut = () => daftar.slice().sort((a, b) => (Number(a.urutan) - Number(b.urutan)) || (a._i - b._i));
+  const judulBawaan = c => label(Object.assign({}, c, { tampil: '', label: c.asli }));
+  const judulEf = c => c.tampil || judulBawaan(c);
+  const kelompok = () => { const g = []; urut().forEach(c => { let x = g.find(y => y.nama === c.seksi); if (!x) { x = { nama: c.seksi, isi: [] }; g.push(x); } x.isi.push(c); }); return g; };
+
+  const rowHtml = (c, pos, total) => {
+    const buka = terbuka.has(c.kolom), inti = c.inti, id = 'ik_' + c.kolom;
+    const chips = [inti ? '<span class="chip" title="Dipakai langsung oleh pencarian, statistik, atau peringatan data. Judul boleh diganti, tidak bisa disembunyikan.">Isian inti</span>' : '', c.kustom ? '<span class="chip">Tambahan</span>' : '', !c.aktif ? '<span class="chip merah">Disembunyikan</span>' : ''].join('');
+    return `<li class="isian${c.aktif ? '' : ' mati'}" data-k="${esc(c.kolom)}">
+      <div class="isian-utama">
+        <div class="fl isian-judul"><label for="${id}_j">Judul di form</label><input id="${id}_j" type="text" data-f="tampil" maxlength="120" value="${esc(judulEf(c))}"></div>
+        <div class="isian-aksi">
+          <button class="ikon" type="button" data-aksi="naik" aria-label="Naikkan ${esc(judulEf(c))}" ${pos === 0 ? 'disabled' : ''}>${IK_NAIK}</button>
+          <button class="ikon" type="button" data-aksi="turun" aria-label="Turunkan ${esc(judulEf(c))}" ${pos === total - 1 ? 'disabled' : ''}>${IK_TURUN}</button>
+          <label class="saklar"><input type="checkbox" data-f="aktif" ${c.aktif ? 'checked' : ''} ${inti ? 'disabled' : ''}><span>Tampil</span></label>
+          <button class="btn sek kecil" type="button" data-aksi="rinci" aria-expanded="${buka}">${buka ? 'Tutup' : 'Rincian'}</button>
+        </div>
+      </div>
+      <div class="isian-info"><span>${esc(NAMA_JENIS[c.tipe] || c.tipe)}</span><span>Terisi di ${ang(c.terisi)} dari ${ang(K.total)} pesantren</span>${chips}${!c.aktif ? '<span>Data lama tetap tersimpan.</span>' : ''}</div>
+      <div class="isian-rinci" ${buka ? '' : 'hidden'}>
+        <div class="fl penuh"><label for="${id}_p">Petunjuk di bawah isian</label><input id="${id}_p" type="text" data-f="petunjuk" maxlength="200" value="${esc(c.petunjuk || HINT[c.kolom] || '')}" placeholder="Boleh dikosongkan"></div>
+        <div class="fl"><label for="${id}_s">Bagian</label><input id="${id}_s" type="text" data-f="seksi" list="dl-seksi" maxlength="40" value="${esc(c.seksi)}"><span class="hint">Pilih bagian yang ada atau tulis nama bagian baru.</span></div>
+        <div class="fl"><label for="${id}_u">Satuan</label><input id="${id}_u" type="text" data-f="satuan" maxlength="20" value="${esc(c.satuan)}" placeholder="Contoh: orang, ha"></div>
+        <div class="cek penuh">
+          <label class="saklar"><input type="checkbox" data-f="wajib" ${c.wajib ? 'checked' : ''} ${inti ? 'disabled' : ''}><span>Wajib diisi</span></label>
+          <label class="saklar"><input type="checkbox" data-f="vis" ${c.vis === 'publik' ? 'checked' : ''} ${inti ? 'disabled' : ''}><span>Tampil di profil publik</span></label>
+        </div>
+        <div class="fl"><label for="${id}_e">Yang mengisi</label><select id="${id}_e" data-f="editor" ${inti ? 'disabled' : ''}><option value="admin_pondok" ${c.editor === 'admin_pondok' ? 'selected' : ''}>Admin pondok</option><option value="operator" ${c.editor === 'operator' ? 'selected' : ''}>Hanya operator LP2 PP</option></select></div>
+        <p class="isian-catatan penuh">Judul asli di formulir: ${esc(c.asli)}<br>${inti ? 'Isian inti: pengaturan tampil, wajib, publik, dan pengisi dikunci karena dipakai langsung oleh pencarian dan statistik.' : 'Menyembunyikan tidak menghapus data. Data lama tetap ada dan muncul lagi bila isian ditampilkan kembali.'}</p>
+      </div>
+    </li>`;
+  };
+
+  const gambar = () => {
+    const q = cari.trim().toLowerCase(), g = kelompok(), ub = daftar.filter(berubah).length;
+    const wadah = $('#isian-wadah', el);
+    wadah.innerHTML = g.map(k => {
+      const tampil = k.isi.map((c, i) => [c, i]).filter(([c]) => !q || (judulEf(c) + ' ' + c.asli + ' ' + c.kolom).toLowerCase().includes(q));
+      if (!tampil.length) return '';
+      return `<section class="isian-seksi"><h2>${esc(k.nama)} <small>${k.isi.length} isian</small></h2><ul class="isian-daftar">${tampil.map(([c, i]) => rowHtml(c, i, k.isi.length)).join('')}</ul></section>`;
+    }).join('') || '<p class="muted">Tidak ada isian yang cocok.</p>';
+    $('#dl-seksi', el).innerHTML = g.map(k => `<option value="${esc(k.nama)}">`).join('');
+    $('#status-isian', el).textContent = ub ? `${ub} isian diubah, belum disimpan.` : 'Belum ada perubahan.';
+    $('#isian-simpan', el).disabled = !ub; $('#isian-batal', el).disabled = !ub;
+  };
+  const status = () => { const ub = daftar.filter(berubah).length; $('#status-isian', el).textContent = ub ? `${ub} isian diubah, belum disimpan.` : 'Belum ada perubahan.'; $('#isian-simpan', el).disabled = !ub; $('#isian-batal', el).disabled = !ub; };
+
+  const opsiSeksi = () => kelompok().map(k => k.nama);
+  const gambarHal = () => {
+    muatData();
+    el.innerHTML = kepala + `
+      <p class="muted" style="max-width:72ch">Ubah judul dan petunjuk isian, atur urutannya, sembunyikan isian yang tidak dipakai, atau tambah isian baru. Isian tidak bisa dihapus agar riwayat data pesantren tetap utuh. Perubahan berlaku untuk form admin pondok dan halaman profil, dan setiap perubahan tercatat di Riwayat perubahan.</p>
+      <div class="info" style="margin:14px 0;max-width:72ch">Isian bertanda <b>Isian inti</b> dipakai langsung oleh pencarian, statistik, dan peringatan data, jadi judulnya boleh diganti tetapi tidak bisa disembunyikan. ${ang(K.sistem)} kolom sistem (nomor ID, status, waktu ubah) tidak ditampilkan di sini.</div>
+      <details class="isian-tambah" id="blok-tambah"><summary>Tambah isian baru</summary>
+        <form id="form-tambah" class="grid-form" novalidate>
+          <div class="fl penuh"><label for="t-judul">Judul isian <span class="wajib">*</span></label><input id="t-judul" type="text" maxlength="120" autocomplete="off" placeholder="Contoh: Jumlah ruang kelas"></div>
+          <div class="fl"><label for="t-jenis">Jenis isian <span class="wajib">*</span></label><select id="t-jenis">${JENIS_ISIAN.map(([v, n]) => `<option value="${v}">${n}</option>`).join('')}</select><span class="hint">Jenis tidak bisa diubah setelah ditambahkan.</span></div>
+          <div class="fl"><label for="t-seksi">Bagian <span class="wajib">*</span></label><input id="t-seksi" type="text" list="dl-seksi" maxlength="40" autocomplete="off" placeholder="Pilih atau tulis bagian baru"></div>
+          <div class="fl penuh" id="t-pilihan-wadah" hidden><label for="t-pilihan">Pilihan jawaban <span class="wajib">*</span></label><textarea id="t-pilihan" rows="4" placeholder="Satu pilihan per baris, minimal dua"></textarea><span class="hint" id="t-pilihan-hint"></span></div>
+          <div class="fl"><label for="t-satuan">Satuan</label><input id="t-satuan" type="text" maxlength="20" placeholder="Contoh: orang, ruang (boleh kosong)"></div>
+          <div class="fl"><label for="t-petunjuk">Petunjuk pengisian</label><input id="t-petunjuk" type="text" maxlength="200" placeholder="Boleh dikosongkan"></div>
+          <div class="fl"><label for="t-editor">Yang mengisi</label><select id="t-editor"><option value="admin_pondok">Admin pondok</option><option value="operator">Hanya operator LP2 PP</option></select></div>
+          <div class="cek penuh" style="display:flex;gap:18px;flex-wrap:wrap">
+            <label class="saklar"><input type="checkbox" id="t-wajib"><span>Wajib diisi</span></label>
+            <label class="saklar"><input type="checkbox" id="t-vis"><span>Tampil di profil publik</span></label>
+          </div>
+          <p class="isian-catatan penuh">Isian baru tidak tampil di publik kecuali Anda mencentangnya. Kuota isian tambahan: <b>${K.jumlah_kustom}</b> dari ${K.maks_kustom} terpakai.</p>
+          <div class="penuh"><button class="btn" type="submit" id="t-kirim">Tambahkan isian</button></div>
+        </form>
+      </details>
+      <div class="isian-bantu"><div class="fl cari-isian"><label class="sr" for="isian-cari">Cari isian</label><input id="isian-cari" type="search" placeholder="Cari isian…" autocomplete="off"></div><span class="muted">${ang(K.kolom.length)} isian dapat diatur</span></div>
+      <datalist id="dl-seksi"></datalist>
+      <div id="isian-wadah"></div>
+      <div class="bar-simpan"><div class="wrap"><span class="status" id="status-isian">Belum ada perubahan.</span>
+        <button class="btn sek" type="button" id="isian-batal" disabled>Batalkan perubahan</button>
+        <button class="btn" type="button" id="isian-simpan" disabled>Simpan perubahan</button></div></div></div>`;
+    gambar();
+    pasangEvent();
+  };
+
+  const cariItem = e => { const li = e.target.closest('li.isian'); return li ? daftar.find(c => c.kolom === li.dataset.k) : null; };
+  const pasangEvent = () => {
+    const wadah = $('#isian-wadah', el);
+    wadah.addEventListener('input', e => {
+      const c = cariItem(e), f = e.target.dataset.f; if (!c || !f || e.target.type === 'checkbox' || e.target.tagName === 'SELECT') return;
+      if (f === 'tampil') c.tampil = e.target.value.trim() === judulBawaan(c) ? '' : e.target.value;
+      else if (f === 'petunjuk') c.petunjuk = e.target.value;
+      else if (f === 'seksi') c.seksi = e.target.value;
+      else if (f === 'satuan') c.satuan = e.target.value;
+      status();
+    });
+    wadah.addEventListener('change', e => {
+      const c = cariItem(e), f = e.target.dataset.f; if (!c || !f) return;
+      if (f === 'aktif') c.aktif = e.target.checked;
+      else if (f === 'wajib') c.wajib = e.target.checked;
+      else if (f === 'vis') c.vis = e.target.checked ? 'publik' : 'terbatas';
+      else if (f === 'editor') c.editor = e.target.value;
+      else if (f === 'seksi') { c.seksi = e.target.value.trim() || c.seksi; }
+      else return;
+      const y = scrollY; gambar(); scrollTo(0, y);
+    });
+    wadah.addEventListener('click', e => {
+      const b = e.target.closest('[data-aksi]'); if (!b) return;
+      const c = cariItem(e); if (!c) return;
+      if (b.dataset.aksi === 'rinci') { terbuka.has(c.kolom) ? terbuka.delete(c.kolom) : terbuka.add(c.kolom); const li = b.closest('li'), r = $('.isian-rinci', li); r.hidden = !terbuka.has(c.kolom); b.textContent = r.hidden ? 'Rincian' : 'Tutup'; b.setAttribute('aria-expanded', String(!r.hidden)); return; }
+      const grup = urut().filter(x => x.seksi === c.seksi), i = grup.indexOf(c), t = grup[i + (b.dataset.aksi === 'naik' ? -1 : 1)];
+      if (!t) return;
+      let a = Number(c.urutan), z = Number(t.urutan);
+      if (a === z) z = a + (b.dataset.aksi === 'naik' ? -0.5 : 0.5);
+      c.urutan = z; t.urutan = a;
+      const y = scrollY; gambar(); scrollTo(0, y);
+      const ulang = $(`li[data-k="${c.kolom}"] [data-aksi="${b.dataset.aksi}"]`, el); if (ulang && !ulang.disabled) ulang.focus(); else { const lain = $(`li[data-k="${c.kolom}"] .ikon:not(:disabled)`, el); if (lain) lain.focus(); }
+    });
+  };
+
+  gambarHal();
+  const ubahJenis = () => {
+    const j = $('#t-jenis', el).value, w = $('#t-pilihan-wadah', el);
+    w.hidden = !['pilihan', 'multi'].includes(j);
+    $('#t-pilihan-hint', el).textContent = j === 'multi' ? 'Jangan memakai tanda koma di dalam satu pilihan.' : '';
+  };
+  el.onchange = e => { if (e.target.id === 't-jenis') ubahJenis(); };
+  el.oninput = e => { if (e.target.id === 'isian-cari') { cari = e.target.value; gambar(); } };
+  el.onsubmit = async e => {
+    if (e.target.id !== 'form-tambah') return;
+    e.preventDefault();
+    const v = id => $('#' + id, el).value.trim();
+    const jenis = v('t-jenis');
+    const data = { tampil: v('t-judul'), tipe: jenis, seksi: v('t-seksi'), satuan: v('t-satuan'), petunjuk: v('t-petunjuk'), editor: $('#t-editor', el).value, wajib: $('#t-wajib', el).checked, vis: $('#t-vis', el).checked ? 'publik' : 'terbatas' };
+    if (['pilihan', 'multi'].includes(jenis)) data.pilihan = $('#t-pilihan', el).value.split('\n').map(x => x.trim()).filter(Boolean);
+    if (!data.tampil) { toast('Judul isian wajib diisi.', 'galat'); $('#t-judul', el).focus(); return; }
+    if (!data.seksi) { toast('Pilih atau tulis nama bagian.', 'galat'); $('#t-seksi', el).focus(); return; }
+    const b = $('#t-kirim', el); b.disabled = true; b.textContent = 'Menambahkan…';
+    try {
+      await api('tambahIsian', data); S.pubMeta = null; S.authMeta = null;
+      toast('Isian ditambahkan.'); K = await api('kelolaIsian'); if (!ok()) return; gambarHal();
+    } catch (x) { if (!x.ditangani) toast(x.message, 'galat'); b.disabled = false; b.textContent = 'Tambahkan isian'; }
+  };
+  el.onclick = async e => {
+    if (e.target.id === 'isian-batal') { muatData(); const y = scrollY; gambar(); scrollTo(0, y); return; }
+    if (e.target.id !== 'isian-simpan') return;
+    const ubah = daftar.filter(berubah);
+    for (const c of ubah) {
+      if (!String(c.seksi || '').trim()) { toast(`Bagian untuk "${judulEf(c)}" tidak boleh kosong.`, 'galat'); return; }
+      if (String(c.seksi).trim().toLowerCase() === 'sistem') { toast('Nama bagian "Sistem" dipakai khusus oleh sistem.', 'galat'); return; }
+    }
+    const b = e.target; b.disabled = true; b.textContent = 'Menyimpan…';
+    try {
+      const r = await api('simpanIsian', { items: ubah.map(c => ({ kolom: c.kolom, tampil: c.tampil, petunjuk: c.petunjuk, seksi: String(c.seksi).trim(), satuan: c.satuan, wajib: !!c.wajib, vis: c.vis, editor: c.editor, aktif: !!c.aktif, urutan: Number(c.urutan) })) });
+      S.pubMeta = null; S.authMeta = null;
+      toast(r.pesan || 'Tersimpan.'); K = await api('kelolaIsian'); if (!ok()) return; const y = scrollY; gambarHal(); scrollTo(0, y);
+    } catch (x) { if (!x.ditangani) toast(x.message, 'galat'); b.disabled = false; b.textContent = 'Simpan perubahan'; }
   };
 }
 
