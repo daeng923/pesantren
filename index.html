@@ -1337,7 +1337,8 @@ async function muatFotoSorotan(sorot, ok) {
     if (!h || !h.foto.length) return;
     const kartu = $(`[data-sid="${h.id}"] .sorot-foto`);
     if (kartu) { const im = new Image(); im.alt = ''; im.onerror = () => im.remove(); im.src = h.foto[0].thumb; kartu.appendChild(im); }
-    h.foto.slice(0, 2).forEach(f => semua.push({ id: h.id, nama: h.nama, prov: h.kab, thumb: f.thumb }));
+    // foto pertama = logo (urutan form: logo, bangunan, kegiatan); slide hanya memakai foto setelahnya
+    h.foto.slice(1, 3).forEach(f => semua.push({ id: h.id, nama: h.nama, prov: h.kab, thumb: f.thumb }));
   });
   const gambarDots = pasangSlider(); if (!gambarDots) return;
   const tr = $('#slider-track');
