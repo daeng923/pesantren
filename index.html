@@ -394,11 +394,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
 .hero-band .cari input,.hero-band .cari select{border-color:transparent}
 .hero-band .btn{background:var(--emas);border-color:var(--emas);color:var(--on-emas)}
 .hero-band .btn:hover{background:var(--emas-hover);color:var(--on-emas)}
-.cepat{list-style:none;margin:-52px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;position:relative}
-.cepat a{display:block;height:100%;background:var(--putih);border:1px solid var(--garis);border-top:4px solid var(--emas);border-radius:var(--r);padding:16px 18px 18px;text-decoration:none;color:var(--tinta);box-shadow:0 8px 22px rgba(13,58,44,.1)}
-.cepat a:hover{border-top-color:var(--h700);color:var(--tinta)}
-.cepat b{display:block;font:700 1.05rem/1.2 var(--judul);color:var(--h900);margin-bottom:6px}
-.cepat span{font-size:.9rem;color:var(--tinta2);line-height:1.4}
 .judul-bagian{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .judul-bagian a{font-weight:600;font-size:.93rem}
 .fakta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:20px 0 0;border-top:2px solid var(--h900)}
@@ -443,7 +438,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
   .nav.buka{display:flex}
   .nav>a,.nav .dd-btn,.nav .linkbtn{padding:11px 10px}
   .dd-panel{position:static;width:auto;box-shadow:none;border:0;border-top:0;border-left:3px solid var(--emas);border-radius:0;padding:6px 14px;grid-template-columns:1fr;gap:10px;margin:2px 0 6px}
-  .cepat{grid-template-columns:repeat(2,minmax(0,1fr))}
   .fakta{grid-template-columns:repeat(2,minmax(0,1fr))}
   .fakta div:not(:nth-child(4n+1)){padding-left:0;border-left:0}
   .fakta div:nth-child(even){padding-left:18px;border-left:1px solid var(--garis)}
@@ -452,7 +446,6 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
   .foot-atas{grid-template-columns:1fr 1fr}
 }
 @media (max-width:640px){
-  .cepat{grid-template-columns:1fr;margin-top:-44px}
   .sorot-grid{grid-template-columns:1fr}
   .foot-atas{grid-template-columns:1fr}
   .utilbar .wrap>span{display:none}
@@ -619,7 +612,27 @@ footer a{color:#fff}
   body.boleh-cetak #cetak-dilarang{display:none!important}
 }
 .cetak-kaki{display:none}
-.cetak-judul{display:none;font:700 .9rem var(--judul);color:var(--h700);margin-bottom:6px}
+.cetak-judul{display:none;font:700 .9rem var(--judul);color:var(--h700);margin-bottom:6px}/* pintasan beranda: satu panel dengan sekat, bukan deretan kartu */
+.pintas{list-style:none;margin:-40px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--garis);border:1px solid var(--garis);border-radius:var(--r3);overflow:hidden;position:relative;box-shadow:0 10px 26px rgba(13,58,44,.12)}
+.pintas li{background:var(--putih);min-width:0}
+.pintas a{display:flex;align-items:center;gap:14px;height:100%;padding:18px 20px;text-decoration:none;color:var(--tinta);transition:background-color .18s}
+.pintas a:hover{background:var(--h50);color:var(--tinta)}
+.pintas .ik{flex:none;width:42px;height:42px;border-radius:50%;background:var(--h100);color:var(--h800);display:flex;align-items:center;justify-content:center;transition:background-color .18s,color .18s}
+.pintas .ik svg{width:21px;height:21px;display:block}
+.pintas a:hover .ik{background:var(--h800);color:#fff}
+.pintas .tk{min-width:0;display:flex;flex-direction:column;gap:2px}
+.pintas b{font:700 1rem/1.25 var(--judul);color:var(--h900)}
+.pintas small{font-size:.86rem;line-height:1.35;color:var(--tinta3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pintas a:hover b{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+@media (max-width:1100px){.pintas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){
+  .pintas{margin-top:-30px}
+  .pintas a{padding:14px;gap:10px;flex-direction:column;align-items:flex-start}
+  .pintas .ik{width:36px;height:36px}.pintas .ik svg{width:18px;height:18px}
+  .pintas b{font-size:.93rem}
+  .pintas small{display:none}
+}
+
 /* ====================== GERAK & TRANSISI (lembut, singkat) ====================== */
 :root{--ease:cubic-bezier(.2,.7,.2,1);--ease-keluar:cubic-bezier(.4,0,1,1)}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
@@ -661,8 +674,8 @@ a{transition:color .15s,text-decoration-color .15s}
 input,select,textarea{transition:border-color .15s,box-shadow .15s,background-color .15s}
 .chip{transition:background-color .15s,color .15s}
 /* kartu */
-.cepat a,.sorot,.kartu-grafik,.kartu-login{transition:transform .22s var(--ease),box-shadow .22s var(--ease),border-color .2s}
-.cepat a:hover,.sorot:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(13,58,44,.12)}
+.sorot,.kartu-grafik,.kartu-login{transition:transform .22s var(--ease),box-shadow .22s var(--ease),border-color .2s}
+.sorot:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(13,58,44,.12)}
 .sorot-foto img,.galeri img,.slide img{transition:transform .5s var(--ease),opacity .4s}
 .sorot:hover .sorot-foto img,.galeri a:hover img{transform:scale(1.04)}
 .tbl tbody tr{transition:background-color .15s}
@@ -1364,6 +1377,14 @@ function pasangPeta(root, provs) {
   const gl = $('#peta-gulir', root); if (gl && gl.scrollWidth > gl.clientWidth) gl.scrollLeft = (gl.scrollWidth - gl.clientWidth) / 2;
 }
 
+const IKON_PINTAS = {
+  direktori: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
+  sebaran: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+  statistik: '<path d="M5 20V11M12 20V4M19 20v-6"/>',
+  masuk: '<path d="M4 20l4.2-1 10-10a2 2 0 0 0-2.8-2.8l-10 10L4 20z"/><path d="M14.5 7.5l2 2"/>',
+  panel: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  pesantren: '<path d="M3 11l9-6 9 6"/><path d="M5 10v9h14v-9"/><path d="M10 19v-5h4v5"/>'
+};
 let sliderTimer = null;
 
 async function pageBeranda({ el, ok }) {
@@ -1379,11 +1400,11 @@ async function pageBeranda({ el, ok }) {
   let nSor = parseInt(B.jumlah_sorotan, 10) || kolS * 2; nSor = Math.min(15, Math.max(kolS, Math.floor(nSor / kolS) * kolS));
   const sorot = st.top_santri.slice(0, nSor);
   const cepat = [
-    ['#/direktori', 'Cari pesantren', `Telusuri ${ang(r.pesantren)} pesantren menurut nama atau daerah.`],
-    ['#/sebaran', 'Sebaran provinsi', 'Lihat jumlah pesantren di tiap provinsi.'],
-    ['#/statistik', 'Pesantren dalam angka', 'Santri, tenaga pendidik, lahan, kurikulum, dan buku ajar.'],
-    S.user ? (isStaff() ? ['#/panel', 'Panel operator', 'Verifikasi data dan kelola akun.'] : (S.user.id_pesantren ? ['#/pesantren/' + S.user.id_pesantren, 'Pesantren saya', 'Lihat dan perbarui profil pesantren Anda.'] : ['#/direktori', 'Direktori', 'Telusuri data pesantren.']))
-      : ['#/masuk', 'Perbarui data pesantren', 'Masuk sebagai admin pesantren untuk mengubah profil.']
+    ['#/direktori', 'Cari pesantren', `Telusuri ${ang(r.pesantren)} pesantren`],
+    ['#/sebaran', 'Sebaran provinsi', 'Jumlah pesantren per provinsi'],
+    ['#/statistik', 'Pesantren dalam angka', 'Santri, pendidik, lahan, buku ajar'],
+    S.user ? (isStaff() ? ['#/panel', 'Panel operator', 'Verifikasi data dan kelola akun'] : (S.user.id_pesantren ? ['#/pesantren/' + S.user.id_pesantren, 'Pesantren saya', 'Lihat dan perbarui profil Anda'] : ['#/direktori', 'Direktori', 'Telusuri data pesantren']))
+      : ['#/masuk', 'Perbarui data pesantren', 'Masuk sebagai admin pesantren']
   ];
   el.innerHTML = `
   <section class="hero-band${heroImg ? ' ada-gambar' : ''}" style="${B.tampil_cepat ? '' : 'padding-bottom:46px;'}${heroImg ? `--hero-img:url('${esc(heroImg)}');--hero-op:${(parseInt(B.hero_jelas, 10) || 35) / 100}` : ''}"><div class="wrap"><div class="hero-grid"><div>
@@ -1401,7 +1422,7 @@ async function pageBeranda({ el, ok }) {
       <div><dt>Provinsi tercakup</dt><dd>${r.provinsi_tercakup} dari ${r.provinsi_total}</dd></div>
       <div class="lanjut"><a href="#/statistik">Lihat statistik lengkap</a></div>
     </dl>` : ''}</div></div></section>
-  ${B.tampil_cepat ? `<div class="wrap"><ul class="cepat">${cepat.map(c => `<li><a href="${c[0]}"><b>${esc(c[1])}</b><span>${esc(c[2])}</span></a></li>`).join('')}</ul></div>` : ''}
+  ${B.tampil_cepat ? `<div class="wrap"><ul class="pintas">${cepat.map(c => `<li><a href="${c[0]}"><span class="ik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IKON_PINTAS[c[0].split('/')[1]] || IKON_PINTAS.direktori}</svg></span><span class="tk"><b>${esc(c[1])}</b><small>${esc(c[2])}</small></span></a></li>`).join('')}</ul></div>` : ''}
   ${B.tampil_angka ? `<section class="bagian angka-sempit"><div class="wrap">
     <dl class="angka" style="margin-top:0">
       <div><dt>Pesantren terdata</dt><dd>${ang(r.pesantren)}</dd></div>
