@@ -620,6 +620,71 @@ footer a{color:#fff}
 }
 .cetak-kaki{display:none}
 .cetak-judul{display:none;font:700 .9rem var(--judul);color:var(--h700);margin-bottom:6px}
+/* ====================== GERAK & TRANSISI (lembut, singkat) ====================== */
+:root{--ease:cubic-bezier(.2,.7,.2,1);--ease-keluar:cubic-bezier(.4,0,1,1)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@keyframes munculNaik{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes munculTurun{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes munculSaja{from{opacity:0}to{opacity:1}}
+@keyframes dlgMasuk{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes tumbuhX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes donutMasuk{from{opacity:0;transform:rotate(-70deg) scale(.92)}to{opacity:1;transform:none}}
+@keyframes kilau{100%{transform:translateX(100%)}}
+@keyframes toastMasuk{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes toastKeluar{to{opacity:0;transform:translateY(8px)}}
+/* perpindahan halaman */
+#utama.masuk{animation:munculNaik .28s var(--ease) both}
+/* indikator muat di atas layar */
+#bar-muat{position:fixed;top:0;left:0;right:0;height:3px;z-index:200;background:var(--emas);transform:scaleX(0);transform-origin:left;opacity:0;pointer-events:none}
+#bar-muat.jalan{opacity:1;transform:scaleX(.72);transition:transform 6s cubic-bezier(.1,.6,.2,1)}
+#bar-muat.selesai{opacity:0;transform:scaleX(1);transition:transform .2s ease-out,opacity .3s .2s}
+/* kerangka muat (skeleton) menggantikan spinner; baru tampak bila muat lebih dari ~0,15 dtk */
+.muat{padding-top:36px;padding-bottom:36px;text-align:left;color:inherit;animation:munculSaja .3s .15s both}
+.muat::before{display:none}
+.muat .sk{position:relative;overflow:hidden;background:var(--h100);border-radius:var(--r);margin-bottom:14px}
+.muat .sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);animation:kilau 1.3s infinite}
+.muat .sk-h{height:34px;width:min(420px,70%)}
+.muat .sk-p{height:14px;width:min(640px,92%)}
+.muat .sk-p.s{width:min(480px,64%)}
+.muat .sk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:22px}
+.muat .sk-grid .sk{height:120px;margin:0;border-radius:var(--r2)}
+/* menu */
+.dd-panel:not([hidden]){animation:munculTurun .17s var(--ease) both}
+@media (max-width:900px){.nav.buka{animation:munculTurun .2s var(--ease) both}}
+.nav a,.nav button,.dd-panel a{transition:background-color .15s,color .15s}
+/* tombol & tautan */
+.btn{transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s,transform .1s}
+.btn:active:not(:disabled){transform:translateY(1px) scale(.985)}
+.btn:hover:not(:disabled){box-shadow:0 3px 10px rgba(13,58,44,.18)}
+.btn.sek:hover:not(:disabled){box-shadow:none}
+a{transition:color .15s,text-decoration-color .15s}
+input,select,textarea{transition:border-color .15s,box-shadow .15s,background-color .15s}
+.chip{transition:background-color .15s,color .15s}
+/* kartu */
+.cepat a,.sorot,.kartu-grafik,.kartu-login{transition:transform .22s var(--ease),box-shadow .22s var(--ease),border-color .2s}
+.cepat a:hover,.sorot:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(13,58,44,.12)}
+.sorot-foto img,.galeri img,.slide img{transition:transform .5s var(--ease),opacity .4s}
+.sorot:hover .sorot-foto img,.galeri a:hover img{transform:scale(1.04)}
+.tbl tbody tr{transition:background-color .15s}
+.tbl tbody tr:hover{background:var(--h50)}
+.pp-baris,.legenda li{transition:background-color .15s}
+/* foto muncul halus setelah termuat */
+.sorot-foto img,.galeri img{opacity:0}
+.sorot-foto img.siap,.galeri img.siap,.slide img{opacity:1}
+.sorot-foto img:not(.siap),.galeri img:not(.siap){animation:munculSaja .01s 3.5s forwards}
+/* bagian profil yang dibuka */
+details.seksi>summary{transition:background-color .15s}
+details.seksi[open]>dl{animation:munculTurun .24s var(--ease) both}
+/* grafik tumbuh sekali saat halaman dibuka */
+.b-trek i{transform-origin:left;animation:tumbuhX .8s .1s var(--ease) both}
+.donut svg{animation:donutMasuk .8s var(--ease) both}
+.irisan{transition:opacity .15s,stroke-width .15s}
+/* dialog & toast */
+dialog.dlg[open]{animation:dlgMasuk .2s var(--ease) both}
+dialog.dlg[open]::backdrop{animation:munculSaja .2s both}
+.toast{animation:toastMasuk .25s var(--ease) both}
+.toast.keluar{animation:toastKeluar .22s var(--ease-keluar) both}
+@media print{*{animation:none!important;transition:none!important}.sorot-foto img,.galeri img{opacity:1!important}}
 </style>
 <script>
 const LOGO_CADANGAN=['https://daeng923.github.io/pesantren/warna.png','https://raw.githubusercontent.com/daeng923/pesantren/main/warna.png'];
@@ -643,6 +708,7 @@ function logoGagal(img){const n=+(img.dataset.n||0);if(/warna\.png/.test(img.src
 <main id="utama" tabindex="-1" aria-live="polite"></main>
 <footer id="foot"></footer>
 <div id="pratinjau-bar" class="pratinjau-bar" hidden></div>
+<div id="bar-muat" aria-hidden="true"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="cetak-dilarang">Pencetakan halaman ini hanya tersedia bagi pengelola yang telah masuk.</div>
 
@@ -716,7 +782,7 @@ function toast(msg, jenis) {
   el.textContent = msg;
   const w = $('#toast'); while (w.children.length >= 2) w.firstChild.remove();
   w.appendChild(el);
-  setTimeout(() => el.remove(), jenis === 'galat' ? 7000 : 3800);
+  setTimeout(() => { el.classList.add('keluar'); setTimeout(() => el.remove(), 230); }, jenis === 'galat' ? 7000 : 3800);
 }
 function modal(html) {
   const d = document.createElement('dialog');
@@ -746,7 +812,7 @@ function tampilRahasia(judul, intro, email, pw) {
     else d.close();
   });
 }
-const muat = (t) => `<div class="muat wrap" role="status">${esc(t || 'Memuat data…')}</div>`;
+const muat = (t) => `<div class="muat wrap" role="status"><span class="sr">${esc(t || 'Memuat data…')}</span><div class="sk sk-h"></div><div class="sk sk-p"></div><div class="sk sk-p s"></div><div class="sk-grid"><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></div>`;
 const galatHtml = (e, ulang) => `<div class="wrap"><div class="galat" role="alert"><b>${esc(e.message || 'Terjadi kesalahan.')}</b>${ulang ? '<p style="margin-top:8px"><button class="btn sek kecil" data-ulang="1">Coba lagi</button></p>' : ''}</div></div>`;
 const ang = v => (v === '' || v === null || v === undefined ? '' : nf.format(Number(v)));
 const qs = o => { const p = new URLSearchParams(); Object.keys(o).forEach(k => { if (o[k] !== '' && o[k] !== undefined && o[k] !== null) p.set(k, o[k]); }); const s = p.toString(); return s ? '?' + s : ''; };
@@ -985,6 +1051,11 @@ const ROUTES = [
   [/^\/panel\/log$/, pageLog]
 ];
 let renderSeq = 0;
+let barT = null;
+function barMulai() { const b = $('#bar-muat'); if (!b) return; clearTimeout(barT); b.className = ''; void b.offsetWidth; b.className = 'jalan'; }
+function barSelesai() { const b = $('#bar-muat'); if (!b) return; b.className = 'selesai'; barT = setTimeout(() => { b.className = ''; }, 600); }
+function gerakMasuk(el) { if (!el) return; el.classList.remove('masuk'); void el.offsetWidth; el.classList.add('masuk'); }
+document.addEventListener('load', e => { const t = e.target; if (t && t.tagName === 'IMG') t.classList.add('siap'); }, true);
 async function render() {
   const seq = ++renderSeq;
   const raw = location.hash.replace(/^#/, '') || '/';
@@ -1004,17 +1075,18 @@ async function render() {
   renderNav(path);
   let handler = null, m = null;
   for (const [re, fn] of ROUTES) { m = path.match(re); if (m) { handler = fn; break; } }
-  window.scrollTo(0, 0);
+  window.scrollTo({ top: 0, behavior: 'instant' });
   if (!handler) { el.innerHTML = `<div class="wrap kosong-hal"><h1>Halaman tidak ditemukan</h1><p style="margin-top:10px"><a href="#/">Kembali ke beranda</a></p></div>`; return; }
   document.title = judulSitus();
   const ctx = { el, q, args: m.slice(1), path, ok: () => seq === renderSeq };
   const jalan = async () => {
+    barMulai();
     try { await handler(ctx); infoData(seq); }
     catch (e) {
       if (e.ditangani || seq !== renderSeq) return;
       el.innerHTML = galatHtml(e, true);
       const b = $('[data-ulang]', el); if (b) b.onclick = () => { el.innerHTML = muat(); jalan(); };
-    }
+    } finally { if (seq === renderSeq) { barSelesai(); gerakMasuk(el); } }
   };
   return jalan();
 }
