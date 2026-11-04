@@ -90,6 +90,8 @@ input[readonly],input:disabled,select:disabled,textarea:disabled{background:var(
 /* beranda */
 .hero{padding-top:44px;padding-bottom:28px}
 .hero h1{max-width:18ch}
+.hero-band h1{text-wrap:balance;hyphens:manual}
+.hero-band h1 .tb{white-space:nowrap}
 .lead{font-size:1.15rem;color:var(--tinta2);margin-top:14px;max-width:56ch}
 .cari{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto;gap:10px;margin-top:26px;max-width:860px}
 .cari input,.cari select{min-height:48px}
@@ -1460,7 +1462,7 @@ async function pageBeranda({ el, ok }) {
   ];
   el.innerHTML = `
   <section class="hero-band${heroImg ? ' ada-gambar' : ''}" style="${B.tampil_cepat ? '' : 'padding-bottom:46px;'}${heroImg ? `--hero-img:url('${esc(heroImg)}');--hero-op:${(parseInt(B.hero_jelas, 10) || 35) / 100}` : ''}"><div class="wrap"><div class="hero-grid"><div>
-    <h1>${esc(B.hero_judul)}</h1>
+    <h1>${esc(B.hero_judul).replace(/\S+-\S+/g, m => `<span class="tb">${m}</span>`)}</h1>
     ${B.hero_lead ? `<p class="lead">${esc(B.hero_lead)}</p>` : ''}
     <form class="cari" id="form-cari" role="search">
       <div class="fl"><label class="sr" for="c-q">Nama pesantren atau daerah</label><input id="c-q" type="search" placeholder="Nama pesantren atau daerah" autocomplete="off"></div>
