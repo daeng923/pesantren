@@ -430,6 +430,9 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
 @media (max-width:640px){.foot-atas{grid-template-columns:1fr!important}}
 .foot-bawah{border-top:1px solid rgba(255,255,255,.18);padding:14px 0;font-size:.9rem;color:var(--h300)}
 .foot-bawah .wrap{display:flex;justify-content:space-between;gap:8px 20px;flex-wrap:wrap}
+.foot-bawah .kredit-baris{justify-content:center;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.10)}
+.foot-bawah .kredit{font-size:.82rem;letter-spacing:.02em;color:var(--h300);opacity:.75;text-decoration:none;padding:6px 10px;border-radius:99px;transition:opacity .2s,color .2s,background-color .2s}
+.foot-bawah .kredit:hover,.foot-bawah .kredit:focus-visible{opacity:1;color:#fff;background:rgba(255,255,255,.10)}
 @media (max-width:1000px){
   .burger{display:flex;margin-left:auto;flex:none}
   .brand{margin-right:0;flex:1;min-width:0}
@@ -1197,7 +1200,8 @@ function renderFooter() {
     <div><h2>${esc(judulSitus())}</h2>${c.deskripsi ? `<p>${esc(c.deskripsi)}</p>` : ''}${kontak ? `<div class="foot-kontak">${kontak}</div>` : ''}${sosial ? `<div class="foot-sosial-blok"><h3>Ikuti kami</h3><div class="foot-sosial">${sosial}</div></div>` : ''}</div>
     ${kolom.join('')}
   </div>
-  <div class="foot-bawah"><div class="wrap"><span>© ${new Date().getFullYear()} ${esc(c.copyright || '')}</span>${S.stats && S.stats.diperbarui ? `<span>Data diperbarui ${esc(S.stats.diperbarui)}</span>` : ''}<span class="info-data"><span id="info-data">${esc(S.infoTeks || '')}</span> <button type="button" class="linkbtn segar-foot" data-segarkan>Perbarui data</button></span></div></div>`;
+  <div class="foot-bawah"><div class="wrap"><span>© ${new Date().getFullYear()} ${esc(c.copyright || '')}</span>${S.stats && S.stats.diperbarui ? `<span>Data diperbarui ${esc(S.stats.diperbarui)}</span>` : ''}<span class="info-data"><span id="info-data">${esc(S.infoTeks || '')}</span> <button type="button" class="linkbtn segar-foot" data-segarkan>Perbarui data</button></span></div>
+    <div class="wrap kredit-baris"><a class="kredit" href="https://wa.me/6281355662489?text=${encodeURIComponent('Halo Daeng, saya melihat aplikasi data pesantren dan tertarik dibantu dibuatkan web aplikasi untuk pondok kami.')}" target="_blank" rel="noopener noreferrer" aria-label="Develop by Daeng, hubungi lewat WhatsApp (tab baru)" title="Tertarik dibuatkan web aplikasi? Hubungi lewat WhatsApp">Develop by Daeng</a></div></div>`;
 }
 function infoData(seq) {
   if (seq !== undefined && seq !== renderSeq) return;
