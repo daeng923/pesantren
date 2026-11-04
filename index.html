@@ -1479,15 +1479,20 @@ function pasangSlider() {
 }
 
 async function muatFotoSorotan(sorot, ok) {
-  const hasil = await Promise.all(sorot.map(t => api('publicProfile', { id: t.id }).then(d => ({ id: t.id, nama: t.nama, kab: [t.provinsi].filter(Boolean).join(', '), foto: d.dokumen.filter(x => x.jenis === 'foto') })).catch(() => null)));
+  let hasil;
+  if (sorot.length && sorot.every(t => Array.isArray(t.slide))) {
+    // data foto sudah ikut di statistik (cache server): tidak perlu memanggil profil satu per satu
+    hasil = sorot.map(t => ({ id: t.id, nama: t.nama, kab: t.provinsi || '', sampul: t.sampul || '', slide: t.slide }));
+  } else {
+    const prof = await Promise.all(sorot.map(t => api('publicProfile', { id: t.id }).then(d => ({ t, foto: d.dokumen.filter(x => x.jenis === 'foto') })).catch(() => null)));
+    hasil = prof.filter(Boolean).map(({ t, foto }) => { const sp = pilihSampul(foto); return { id: t.id, nama: t.nama, kab: t.provinsi || '', sampul: sp ? sp.f.thumb : '', slide: foto.slice(1, 3).map(f => f.thumb) }; });
+  }
   if (!ok()) return;
   const semua = [];
   hasil.forEach(h => {
-    if (!h || !h.foto.length) return;
     const kartu = $(`[data-sid="${h.id}"] .sorot-foto`);
-    if (kartu) { const im = new Image(); im.alt = ''; im.onerror = () => im.remove(); im.src = pilihSampul(h.foto).f.thumb; kartu.appendChild(im); }
-    // foto pertama = logo (urutan form: logo, bangunan, kegiatan); slide hanya memakai foto setelahnya
-    h.foto.slice(1, 3).forEach(f => semua.push({ id: h.id, nama: h.nama, prov: h.kab, thumb: f.thumb }));
+    if (kartu && h.sampul) { const im = new Image(); im.alt = ''; im.onerror = () => im.remove(); im.src = h.sampul; kartu.appendChild(im); }
+    h.slide.forEach(th => semua.push({ id: h.id, nama: h.nama, prov: h.kab, thumb: th }));
   });
   const gambarDots = pasangSlider(); if (!gambarDots) return;
   const tr = $('#slider-track');
