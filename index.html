@@ -685,6 +685,19 @@ dialog.dlg[open]::backdrop{animation:munculSaja .2s both}
 .toast{animation:toastMasuk .25s var(--ease) both}
 .toast.keluar{animation:toastKeluar .22s var(--ease-keluar) both}
 @media print{*{animation:none!important;transition:none!important}.sorot-foto img,.galeri img{opacity:1!important}}
+/* banner profil: kiri transparan, kanan jelas */
+.banner-profil.ada-banner{position:relative;overflow:hidden;isolation:isolate;border-radius:var(--r3);padding:26px 32px 30px;min-height:300px;background:var(--h50);border:1px solid var(--garis)}
+.banner-profil.ada-banner>*:not(.banner-img){max-width:min(100%,560px)}
+.banner-profil.ada-banner .aksi{max-width:none}
+.banner-img{position:absolute;top:0;right:0;bottom:0;width:78%;z-index:-1;background-size:cover;background-position:center;background-repeat:no-repeat;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.25) 22%,rgba(0,0,0,.75) 55%,#000 85%);mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.25) 22%,rgba(0,0,0,.75) 55%,#000 85%);animation:munculSaja .6s .1s both}
+@media (max-width:820px){
+  .banner-profil.ada-banner{padding:20px 18px 24px;min-height:0}
+  .banner-img{width:100%;opacity:.22;-webkit-mask-image:none;mask-image:none}
+}
+@media print{.banner-img{display:none!important}.banner-profil.ada-banner{border:0;padding:0;min-height:0;background:none}}
+.sampul-tag{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:99px;background:var(--emas-bg);color:var(--emas-tua);font-size:.8rem;font-weight:700;border:1px solid var(--emas)}
+.berkas-list .aksi-b{display:flex;gap:8px;flex-wrap:wrap;flex:none}
 </style>
 <script>
 const LOGO_CADANGAN=['https://daeng923.github.io/pesantren/warna.png','https://raw.githubusercontent.com/daeng923/pesantren/main/warna.png'];
@@ -849,7 +862,7 @@ const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfi
    Setiap aksi tulis menghapus seluruh cache; tombol "Perbarui data" juga menghapusnya. */
 const CACHE_TTL = 5 * 60 * 1000, CACHE_PRE = 'lp2pp.c.', CACHE_MAKS = 400000;
 const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan']);
-const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'buatUndangan', 'putuskanUndangan', 'changePassword']);
+const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'buatUndangan', 'putuskanUndangan', 'changePassword']);
 const cacheMem = {}, cacheJalan = {};
 function cacheKey(action, params) {
   const j = JSON.stringify(params || {}); let h = 5381; for (let i = 0; i < j.length; i++) h = ((h << 5) + h + j.charCodeAt(i)) | 0;
@@ -1470,7 +1483,7 @@ async function muatFotoSorotan(sorot, ok) {
   hasil.forEach(h => {
     if (!h || !h.foto.length) return;
     const kartu = $(`[data-sid="${h.id}"] .sorot-foto`);
-    if (kartu) { const im = new Image(); im.alt = ''; im.onerror = () => im.remove(); im.src = h.foto[0].thumb; kartu.appendChild(im); }
+    if (kartu) { const im = new Image(); im.alt = ''; im.onerror = () => im.remove(); im.src = pilihSampul(h.foto).f.thumb; kartu.appendChild(im); }
     // foto pertama = logo (urutan form: logo, bangunan, kegiatan); slide hanya memakai foto setelahnya
     h.foto.slice(1, 3).forEach(f => semua.push({ id: h.id, nama: h.nama, prov: h.kab, thumb: f.thumb }));
   });
@@ -1583,6 +1596,12 @@ function peringatanHtml(arr) {
   return `<div class="p-daftar">${arr.map(w => typeof w === 'string' ? `<div class="p-item"><div>${esc(w)}</div></div>`
     : `<div class="p-item"><div class="p-judul">${esc(w.judul)}</div><div class="p-baris">${(w.baris || []).map(b => `<div>${esc(b)}</div>`).join('')}</div>${w.saran ? `<div class="p-saran">${esc(w.saran)}</div>` : ''}</div>`).join('')}</div>`;
 }
+/* foto sampul: pilihan admin; bila belum dipilih, foto kedua (foto pertama umumnya logo); terakhir foto pertama */
+function pilihSampul(foto) {
+  if (!foto || !foto.length) return null;
+  const eks = foto.find(f => f.sampul); if (eks) return { f: eks, eksplisit: true };
+  return { f: foto[1] || foto[0], eksplisit: false, mungkinLogo: !foto[1] };
+}
 function nilaiHtml(c, v) {
   if (v === '' || v === null || v === undefined) return '<span class="kosong">Belum diisi</span>';
   const sat = SATUAN[c.satuan] ? ' ' + SATUAN[c.satuan] : '';
@@ -1631,6 +1650,7 @@ async function pageProfil({ el, args, ok }) {
   const maps = safeUrl(p.maps_url);
   const vst = VERIF[p.status_verifikasi] || VERIF.belum_verifikasi;
   const lok = [p.kecamatan, p.kab_kota, p.provinsi].filter(Boolean).join(', ');
+  const sp = pilihSampul(foto), sampulProfil = sp && (sp.eksplisit || !sp.mungkinLogo) && /^https:\/\/[^\s'"<>\\]+$/.test(sp.f.thumb || '') ? sp.f : null;
   const bolehCetak = !!(S.user && (isStaff() || d.bisa_ubah));
   document.body.classList.toggle('boleh-cetak', bolehCetak);
   const labelJenis = { aset: 'Dokumen aset', prestasi: 'Berkas prestasi' };
@@ -1638,6 +1658,7 @@ async function pageProfil({ el, args, ok }) {
   <div class="wrap">
     <div class="kepala-profil">
       <div class="cetak-judul"><img src="warna.png" alt="" style="height:46px;width:auto;vertical-align:middle;margin-right:8px" onerror="logoGagal(this)">Profil Pondok Pesantren Muhammadiyah · LP2 PP Muhammadiyah</div>
+      <div class="banner-profil${sampulProfil ? ' ada-banner' : ''}">${sampulProfil ? `<div class="banner-img" role="img" aria-label="Foto ${esc(p.nama)}" style="background-image:url('${esc(sampulProfil.thumb)}')"></div>` : ''}
       <div class="remah kecil"><a href="#/direktori">Direktori</a> / <a href="#/direktori${qs({ provinsi: p.provinsi })}">${esc(p.provinsi)}</a></div>
       <h1>${esc(p.nama)}</h1>
       <p class="lok">${esc(lok)}</p>
@@ -1646,6 +1667,7 @@ async function pageProfil({ el, args, ok }) {
         ${maps ? `<a class="btn sek" href="${esc(maps)}" target="_blank" rel="noopener noreferrer">Lihat di peta</a>` : ''}
         ${bolehCetak ? '<button class="btn sek" type="button" id="btn-cetak">Cetak / simpan PDF</button>' : ''}
         ${d.bisa_ubah ? `<a class="btn" href="#/ubah/${esc(p.id)}">Ubah data</a>` : ''}
+      </div>
       </div>
       ${isStaff() ? `<div class="verif" style="margin-top:16px"><span>Status verifikasi: <span class="st">${esc(vst.t)}</span></span>
         ${p.status_verifikasi !== 'terverifikasi' ? '<button class="btn kecil" type="button" data-v="terverifikasi">Tandai terverifikasi</button>' : '<button class="btn sek kecil" type="button" data-v="belum_verifikasi">Batalkan verifikasi</button>'}
@@ -2096,16 +2118,23 @@ async function pageUbah({ el, args, ok }) {
   const blok = $('#blok-berkas');
   function gambarBlok(docs) {
     blok.innerHTML = Object.keys(JUDUL_BERKAS).map(j => {
-      const ds = docs.filter(x => x.jenis === j);
+      const ds = docs.filter(x => x.jenis === j), sp = j === 'foto' ? pilihSampul(ds) : null;
       return `<div class="fl penuh" data-j="${j}"><span class="lab">${esc(JUDUL_BERKAS[j])} <span class="muted kecil">(${ds.length} dari ${MAKS_BERKAS[j]})</span></span>
-        ${ds.length ? `<ul class="berkas-list">${ds.map(x => `<li>${x.thumb && /\.(jpe?g|png|webp)$/i.test(x.nama_file || '') || (j === 'foto' && x.thumb) ? `<img src="${esc(x.thumb)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="ikon">PDF</div>'}<div class="info-b"><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.nama_file || 'Berkas lama dari formulir')}</a></div><button class="btn bahaya kecil" type="button" data-hapus="${esc(x.id_dok)}">Hapus</button></li>`).join('')}</ul>` : '<span class="muted kecil">Belum ada berkas.</span>'}
+        ${ds.length ? `<ul class="berkas-list">${ds.map(x => `<li>${x.thumb && /\.(jpe?g|png|webp)$/i.test(x.nama_file || '') || (j === 'foto' && x.thumb) ? `<img src="${esc(x.thumb)}" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<div class="ikon">PDF</div>'}<div class="info-b"><a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(x.nama_file || 'Berkas lama dari formulir')}</a>${j === 'foto' && sp && sp.f.id_dok === x.id_dok ? `<span class="sampul-tag">${sp.eksplisit ? 'Foto sampul' : 'Sampul otomatis'}</span>` : ''}</div><div class="aksi-b">${j === 'foto' && !(sp && sp.eksplisit && sp.f.id_dok === x.id_dok) ? `<button class="btn sek kecil" type="button" data-sampul="${esc(x.id_dok)}">Jadikan sampul</button>` : ''}<button class="btn bahaya kecil" type="button" data-hapus="${esc(x.id_dok)}">Hapus</button></div></li>`).join('')}</ul>` : '<span class="muted kecil">Belum ada berkas.</span>'}
         <div><input type="file" data-up="${j}" accept="${j === 'foto' ? 'image/jpeg,image/png,image/webp' : 'image/jpeg,image/png,image/webp,application/pdf'}" multiple ${ds.length >= MAKS_BERKAS[j] ? 'disabled' : ''} aria-label="Tambah ${esc(JUDUL_BERKAS[j])}"></div>
-        <span class="hint">JPG, PNG, WEBP${j === 'foto' ? '' : ', atau PDF'}. Maksimal 8 MB per berkas; foto dikecilkan otomatis.</span></div>`;
+        <span class="hint">JPG, PNG, WEBP${j === 'foto' ? '' : ', atau PDF'}. Maksimal 8 MB per berkas; foto dikecilkan otomatis.</span>${j === 'foto' ? '<span class="hint">Foto sampul tampil di kartu pesantren pada beranda dan sebagai banner di bagian atas profil. Pilih foto bangunan atau kegiatan yang mendatar, bukan logo.</span>' : ''}</div>`;
     }).join('');
   }
   let docs = d.dokumen.slice();
   gambarBlok(docs);
   blok.addEventListener('click', async e => {
+    const sm = e.target.closest('[data-sampul]');
+    if (sm) {
+      sm.disabled = true;
+      try { await api('setSampul', { id, id_dok: sm.dataset.sampul }); docs.forEach(x => { x.sampul = x.id_dok === sm.dataset.sampul; }); gambarBlok(docs); toast('Foto sampul diperbarui.'); }
+      catch (x) { if (!x.ditangani) toast(x.message, 'galat'); sm.disabled = false; }
+      return;
+    }
     const h = e.target.closest('[data-hapus]'); if (!h) return;
     if (!await konfirmasi('Hapus berkas ini?', 'Berkas akan dihapus dari daftar pesantren dan dipindahkan ke tempat sampah Drive.', 'Hapus berkas', true)) return;
     h.disabled = true;
