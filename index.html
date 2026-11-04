@@ -344,7 +344,10 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
 .dd-panel a:hover{color:var(--h900);background:none;text-decoration:underline}
 .burger{display:none;width:44px;height:44px;border:1px solid var(--garis);background:var(--putih);border-radius:var(--r);cursor:pointer;padding:0;align-items:center;justify-content:center;flex-direction:column;gap:5px}
 .burger i{display:block;width:20px;height:2px;background:var(--h900)}
-.hero-band{background:var(--h900);color:#fff;padding:46px 0 92px}
+.hero-band{background:var(--h900);color:#fff;padding:46px 0 92px;position:relative;overflow:hidden;isolation:isolate}
+.hero-band.ada-gambar::before{content:"";position:absolute;inset:0;z-index:-2;background:var(--hero-img) center/cover no-repeat;opacity:var(--hero-op,.35)}
+.hero-band.ada-gambar .hero-sekilas>div,.hero-band.ada-gambar .hero-sekilas .lanjut{background:rgba(8,28,21,.45)}
+.hero-band.ada-gambar::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(0,0,0,0) 70%)}
 .hero-band h1{color:#fff;max-width:24ch}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:32px}
 .hero-sekilas{display:none}
@@ -829,7 +832,7 @@ const CFG_BAWAAN = {
   situs: { judul: 'Data Pesantren Muhammadiyah', subjudul: 'LP2 PP Muhammadiyah', deskripsi: 'Direktori dan basis data pesantren Muhammadiyah se-Indonesia, dikelola LP2 PP Muhammadiyah.', logo: 'warna.png', favicon: 'warna.png' },
   tema: { preset: 'hijau', warna_utama: '#0d3a2c', warna_aksen: '#d6a21f', warna_latar: '#f5f7f4', font: 'atkinson', ukuran: 'normal', sudut: 'sedang', header: 'putih' },
   header: { utilbar_tampil: true, utilbar_teks: 'Lembaga Pesantren Muhammadiyah Pusat', tampil_statistik: true, tombol_ukuran: true, menu: [] },
-  beranda: { hero_judul: 'Data pesantren Muhammadiyah se-Indonesia', hero_lead: 'Cari pesantren, baca profilnya, dan lihat sebarannya di tiap provinsi.', tampil_cepat: true, tampil_angka: true, tampil_sorotan: true, jumlah_sorotan: '6', tampil_potret: true },
+  beranda: { hero_judul: 'Data pesantren Muhammadiyah se-Indonesia', hero_lead: 'Cari pesantren, baca profilnya, dan lihat sebarannya di tiap provinsi.', tampil_cepat: true, tampil_angka: true, tampil_sorotan: true, jumlah_sorotan: '6', tampil_potret: true, hero_gambar: '', hero_jelas: '35' },
   footer: { deskripsi: 'Basis data pesantren Muhammadiyah se-Indonesia yang dikelola Lembaga Pesantren Muhammadiyah Pusat. Data diperbarui oleh admin tiap pesantren dan diverifikasi operator.', tampil_provinsi: true, kolom_judul: 'Tautan', kolom_link: [], alamat: '', email: '', telepon: '', facebook: '', instagram: '', youtube: '', tiktok: '', x: '', website: '', copyright: 'LP2 PP Muhammadiyah' },
   pengumuman: { tampil: false, teks: '', link: '', warna: 'emas' }
 };
@@ -1231,7 +1234,7 @@ async function pageBeranda({ el, ok }) {
   const [st] = await Promise.all([api('publicStats'), pubMeta()]);
   if (!ok()) return;
   S.stats = st; renderNav();
-  const B = S.cfg.beranda, r = st.ringkasan;
+  const B = S.cfg.beranda, r = st.ringkasan, heroImg = asetAman(B.hero_gambar);
   const opsiProv = S.pubMeta.provinsi.map(p => `<option value="${esc(p.nilai)}">${esc(p.nilai)}</option>`).join('');
   const nSor = parseInt(B.jumlah_sorotan, 10) || 6, sorot = st.top_santri.slice(0, nSor);
   const cepat = [
@@ -1242,7 +1245,7 @@ async function pageBeranda({ el, ok }) {
       : ['#/masuk', 'Perbarui data pesantren', 'Masuk sebagai admin pesantren untuk mengubah profil.']
   ];
   el.innerHTML = `
-  <section class="hero-band"${B.tampil_cepat ? '' : ' style="padding-bottom:46px"'}><div class="wrap"><div class="hero-grid"><div>
+  <section class="hero-band${heroImg ? ' ada-gambar' : ''}" style="${B.tampil_cepat ? '' : 'padding-bottom:46px;'}${heroImg ? `--hero-img:url('${esc(heroImg)}');--hero-op:${(parseInt(B.hero_jelas, 10) || 35) / 100}` : ''}"><div class="wrap"><div class="hero-grid"><div>
     <h1>${esc(B.hero_judul)}</h1>
     ${B.hero_lead ? `<p class="lead">${esc(B.hero_lead)}</p>` : ''}
     <form class="cari" id="form-cari" role="search">
@@ -2362,6 +2365,11 @@ async function pagePengaturan({ el, ok }) {
     beranda: () => `<section class="form-seksi"><h2>Bagian atas beranda</h2><div class="grid-form">
       ${f('beranda.hero_judul', 'Judul besar', { penuh: true, max: 120 })}
       ${f('beranda.hero_lead', 'Kalimat pengantar', { penuh: true, max: 240, hint: 'Boleh dikosongkan.' })}</div></section>
+      <section class="form-seksi"><h2>Gambar latar bagian atas</h2><div class="grid-form">
+      <div class="fl penuh"><div class="info kecil"><b>Panduan ukuran gambar</b><ul style="margin:6px 0 0;padding-left:1.2em"><li>Ukuran ideal <b>1920 × 700 piksel</b> (mendatar, perbandingan sekitar 11:4). Minimal 1600 × 600 piksel.</li><li>Format JPG atau WEBP agar ringan, usahakan di bawah 500 KB (maksimal 2 MB).</li><li>Pilih foto yang tidak terlalu ramai. Bagian kiri dipakai untuk judul dan kolom pencarian, bagian kanan untuk kotak angka. Pada layar lebar dan HP, sisi gambar bisa terpotong, jadi letakkan objek penting di tengah.</li><li>Gambar otomatis dibuat transparan di atas warna utama, tidak perlu diedit lebih dulu.</li></ul></div></div>
+      ${aset('beranda.hero_gambar', 'Gambar latar')}
+      <div class="fl"><label for="c_jelas">Kejelasan gambar</label><span class="hint">Makin kecil, makin samar dan makin aman untuk keterbacaan teks.</span><select id="c_jelas" data-p="beranda.hero_jelas">${[['15', 'Sangat samar (15%)'], ['25', 'Samar (25%)'], ['35', 'Sedang (35%)'], ['50', 'Jelas (50%)']].map(([v, t]) => `<option value="${v}" ${String(draf.beranda.hero_jelas) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      </div></section>
       <section class="form-seksi"><h2>Bagian yang ditampilkan</h2><div class="grid-form">
       <div class="fl">${cek('beranda.tampil_cepat', 'Kotak tautan cepat')}</div><div class="fl">${cek('beranda.tampil_angka', 'Ringkasan angka')}</div>
       <div class="fl">${cek('beranda.tampil_sorotan', 'Pesantren dengan santri terbanyak')}</div><div class="fl">${cek('beranda.tampil_potret', 'Slide potret pesantren')}</div>
