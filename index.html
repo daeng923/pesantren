@@ -406,7 +406,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
 .fakta div:not(:nth-child(4n+1)){padding-left:18px;border-left:1px solid var(--garis)}
 .fakta dt{order:2;font-size:.9rem;color:var(--tinta2)}
 .fakta dd{margin:0;min-width:0;overflow-wrap:anywhere;font:700 clamp(1.3rem,3vw,2.1rem)/1.1 var(--judul);color:var(--h900);font-variant-numeric:tabular-nums}
-.sorot-grid{list-style:none;margin:20px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.sorot-grid{list-style:none;margin:20px 0 0;padding:0;display:grid;grid-template-columns:repeat(var(--kol,3),minmax(0,1fr));gap:20px}
 .sorot{display:flex;flex-direction:column;height:100%;background:var(--putih);border:1px solid var(--garis);border-radius:var(--r);overflow:hidden;text-decoration:none;color:var(--tinta)}
 .sorot:hover{border-color:var(--h600)}
 .sorot:hover h3{text-decoration:underline}
@@ -945,7 +945,7 @@ const CFG_BAWAAN = {
   situs: { judul: 'Data Pesantren Muhammadiyah', subjudul: 'LP2 PP Muhammadiyah', deskripsi: 'Direktori dan basis data pesantren Muhammadiyah se-Indonesia, dikelola LP2 PP Muhammadiyah.', logo: 'warna.png', favicon: 'warna.png' },
   tema: { preset: 'hijau', warna_utama: '#0d3a2c', warna_aksen: '#d6a21f', warna_latar: '#f5f7f4', font: 'atkinson', ukuran: 'normal', sudut: 'sedang', header: 'putih' },
   header: { utilbar_tampil: true, utilbar_teks: 'Lembaga Pesantren Muhammadiyah Pusat', tampil_statistik: true, tombol_ukuran: true, menu: [] },
-  beranda: { hero_judul: 'Data pesantren Muhammadiyah se-Indonesia', hero_lead: 'Cari pesantren, baca profilnya, dan lihat sebarannya di tiap provinsi.', tampil_cepat: true, tampil_angka: true, tampil_sorotan: true, jumlah_sorotan: '6', tampil_potret: true, hero_gambar: '', hero_jelas: '35' },
+  beranda: { hero_judul: 'Data pesantren Muhammadiyah se-Indonesia', hero_lead: 'Cari pesantren, baca profilnya, dan lihat sebarannya di tiap provinsi.', tampil_cepat: true, tampil_angka: true, tampil_sorotan: true, jumlah_sorotan: '6', sorot_kolom: '3', tampil_potret: true, hero_gambar: '', hero_jelas: '35' },
   footer: { deskripsi: 'Basis data pesantren Muhammadiyah se-Indonesia yang dikelola Lembaga Pesantren Muhammadiyah Pusat. Data diperbarui oleh admin tiap pesantren dan diverifikasi operator.', tampil_provinsi: true, kolom_judul: 'Tautan', kolom_link: [], alamat: '', email: '', telepon: '', facebook: '', instagram: '', youtube: '', tiktok: '', x: '', website: '', copyright: 'LP2 PP Muhammadiyah' },
   pengumuman: { tampil: false, teks: '', link: '', warna: 'emas' }
 };
@@ -1375,7 +1375,9 @@ async function pageBeranda({ el, ok }) {
   S.stats = st; renderNav();
   const B = S.cfg.beranda, r = st.ringkasan, heroImg = asetAman(B.hero_gambar);
   const opsiProv = S.pubMeta.provinsi.map(p => `<option value="${esc(p.nilai)}">${esc(p.nilai)}</option>`).join('');
-  const nSor = parseInt(B.jumlah_sorotan, 10) || 6, sorot = st.top_santri.slice(0, nSor);
+  const kolS = ['2', '3', '4'].includes(String(B.sorot_kolom)) ? parseInt(B.sorot_kolom, 10) : 3;
+  let nSor = parseInt(B.jumlah_sorotan, 10) || kolS * 2; nSor = Math.min(15, Math.max(kolS, Math.floor(nSor / kolS) * kolS));
+  const sorot = st.top_santri.slice(0, nSor);
   const cepat = [
     ['#/direktori', 'Cari pesantren', `Telusuri ${ang(r.pesantren)} pesantren menurut nama atau daerah.`],
     ['#/sebaran', 'Sebaran provinsi', 'Lihat jumlah pesantren di tiap provinsi.'],
@@ -1411,7 +1413,7 @@ async function pageBeranda({ el, ok }) {
   </div></section>` : ''}
   ${B.tampil_sorotan ? `<section class="bagian"><div class="wrap">
     <div class="judul-bagian"><h2>Pesantren dengan santri terbanyak</h2><a href="#/direktori?urut=santri">Selengkapnya</a></div>
-    <ul class="sorot-grid">${sorot.map(t => `<li><a class="sorot" href="#/pesantren/${esc(t.id)}" data-sid="${esc(t.id)}"><div class="sorot-foto" aria-hidden="true">${esc(inisial(t.nama))}</div><div class="sorot-isi"><h3>${esc(t.nama)}</h3><span class="kecil">${esc(t.provinsi)}</span><b>${ang(t.santri)} santri</b></div></a></li>`).join('')}</ul>
+    <ul class="sorot-grid" style="--kol:${kolS}">${sorot.map(t => `<li><a class="sorot" href="#/pesantren/${esc(t.id)}" data-sid="${esc(t.id)}"><div class="sorot-foto" aria-hidden="true">${esc(inisial(t.nama))}</div><div class="sorot-isi"><h3>${esc(t.nama)}</h3><span class="kecil">${esc(t.provinsi)}</span><b>${ang(t.santri)} santri</b></div></a></li>`).join('')}</ul>
   </div></section>` : ''}
   ${B.tampil_potret ? `<section class="bagian" id="potret" hidden><div class="wrap"><h2>Potret pesantren</h2>
     <div class="slider" id="slider" role="region" aria-roledescription="carousel" aria-label="Potret pesantren">
@@ -2537,7 +2539,8 @@ async function pagePengaturan({ el, ok }) {
       <section class="form-seksi"><h2>Bagian yang ditampilkan</h2><div class="grid-form">
       <div class="fl">${cek('beranda.tampil_cepat', 'Kotak tautan cepat')}</div><div class="fl">${cek('beranda.tampil_angka', 'Ringkasan angka')}</div>
       <div class="fl">${cek('beranda.tampil_sorotan', 'Pesantren dengan santri terbanyak')}</div><div class="fl">${cek('beranda.tampil_potret', 'Slide potret pesantren')}</div>
-      <div class="fl"><label for="c_jumlah">Jumlah pesantren pada sorotan</label><select id="c_jumlah" data-p="beranda.jumlah_sorotan">${['3', '6', '9'].map(n => `<option ${draf.beranda.jumlah_sorotan === n ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+      <div class="fl"><label for="c_kol">Kartu per baris</label><span class="hint">Berlaku di layar lebar. Di tablet dan HP otomatis 2 atau 1 kolom.</span><select id="c_kol" data-p="beranda.sorot_kolom">${[['2', '2 kartu (kelipatan 2)'], ['3', '3 kartu (bawaan, kelipatan 3)'], ['4', '4 kartu (kelipatan 4)']].map(([v, t]) => `<option value="${v}" ${String(draf.beranda.sorot_kolom || '3') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="fl"><label for="c_jumlah">Jumlah pesantren pada sorotan</label><span class="hint">Selalu memenuhi baris penuh agar tampilan seimbang.</span><select id="c_jumlah" data-p="beranda.jumlah_sorotan">${[1, 2, 3].map(b => String(b * (parseInt(draf.beranda.sorot_kolom, 10) || 3))).map(n => `<option value="${n}" ${String(draf.beranda.jumlah_sorotan) === n ? 'selected' : ''}>${n} pesantren</option>`).join('')}</select></div>
       </div></section>`,
     footer: () => `<section class="form-seksi"><h2>Isi footer</h2><div class="grid-form">
       ${f('footer.deskripsi', 'Deskripsi', { area: 3, penuh: true, max: 400 })}
@@ -2580,6 +2583,7 @@ async function pagePengaturan({ el, ok }) {
       $$('.preset', form).forEach(x => x.setAttribute('aria-pressed', 'false'));
       upKontras();
     } else cfgSet(draf, p, v);
+    if (p === 'beranda.sorot_kolom') { const k = parseInt(v, 10) || 3, j = parseInt(draf.beranda.jumlah_sorotan, 10) || 0; if (!j || j % k || j > k * 3) draf.beranda.jumlah_sorotan = String(k * 2); gambar(); }
     terapkan();
   };
   form.addEventListener('input', ubah); form.addEventListener('change', ubah);
