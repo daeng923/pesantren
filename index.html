@@ -208,6 +208,12 @@ input[readonly],input:disabled,select:disabled,textarea:disabled{background:var(
 .verif .st{font-weight:700}
 .peringatan{background:var(--emas-bg);border:1px solid #ead08a;border-left:5px solid var(--emas);border-radius:var(--r);padding:12px 14px;color:#4d3a05}
 .peringatan ul{margin:6px 0 0 18px;padding:0}
+.p-daftar{display:grid;gap:10px;margin-top:8px}
+.p-item{padding-top:10px;border-top:1px solid #ead08a}
+.p-item:first-child{padding-top:0;border-top:0}
+.p-judul{font-weight:600}
+.p-baris{margin:4px 0 4px;padding-left:12px;border-left:3px solid var(--emas)}
+.p-saran{font-size:.92rem}
 .galat{background:var(--merah-bg);border:1px solid #e3b6ae;border-left:5px solid var(--merah);border-radius:var(--r);padding:14px 16px;color:#5c1d14;margin:24px 0}
 .info{background:var(--biru-bg);border:1px solid #b8d0e4;border-left:5px solid var(--biru);border-radius:var(--r);padding:12px 14px;color:#173a58}
 .kosong-hal{padding:50px 0;text-align:center;color:var(--tinta2)}
@@ -1501,6 +1507,10 @@ function formatTeks(v, kolom) {
   blok.forEach(b => { if (b.length > 650) pecahKalimat(b).forEach(x => hasil.push(x)); else hasil.push(b); });
   return hasil.map(x => `<p>${esc(x)}</p>`).join('');
 }
+function peringatanHtml(arr) {
+  return `<div class="p-daftar">${arr.map(w => typeof w === 'string' ? `<div class="p-item"><div>${esc(w)}</div></div>`
+    : `<div class="p-item"><div class="p-judul">${esc(w.judul)}</div><div class="p-baris">${(w.baris || []).map(b => `<div>${esc(b)}</div>`).join('')}</div>${w.saran ? `<div class="p-saran">${esc(w.saran)}</div>` : ''}</div>`).join('')}</div>`;
+}
 function nilaiHtml(c, v) {
   if (v === '' || v === null || v === undefined) return '<span class="kosong">Belum diisi</span>';
   const sat = SATUAN[c.satuan] ? ' ' + SATUAN[c.satuan] : '';
@@ -1568,7 +1578,7 @@ async function pageProfil({ el, args, ok }) {
       ${isStaff() ? `<div class="verif" style="margin-top:16px"><span>Status verifikasi: <span class="st">${esc(vst.t)}</span></span>
         ${p.status_verifikasi !== 'terverifikasi' ? '<button class="btn kecil" type="button" data-v="terverifikasi">Tandai terverifikasi</button>' : '<button class="btn sek kecil" type="button" data-v="belum_verifikasi">Batalkan verifikasi</button>'}
         </div>` : ''}
-      ${d.peringatan && d.peringatan.length ? `<div class="peringatan noprint" style="margin-top:14px"><b>Perlu diperiksa</b><ul>${d.peringatan.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>` : ''}
+      ${d.peringatan && d.peringatan.length ? `<div class="peringatan noprint" style="margin-top:14px"><b>Ada angka yang belum cocok</b>${peringatanHtml(d.peringatan)}</div>` : ''}
     </div>
     <div class="profil">
       <aside>
@@ -1991,7 +2001,7 @@ async function pageUbah({ el, args, ok }) {
       const r = await api('update', { id, fields: ub });
       toast(r.pesan || 'Perubahan tersimpan.');
       const pf = $('#peringatan-form');
-      pf.innerHTML = r.peringatan && r.peringatan.length ? `<div class="peringatan" style="margin-bottom:16px"><b>Tersimpan, tetapi perlu diperiksa</b><ul>${r.peringatan.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>` : '';
+      pf.innerHTML = r.peringatan && r.peringatan.length ? `<div class="peringatan" style="margin-bottom:16px"><b>Data sudah tersimpan, tetapi ada angka yang belum cocok</b>${peringatanHtml(r.peringatan)}</div>` : '';
       Object.keys(ub).forEach(k => awal[k] = ub[k]);
       clearTimeout(tDraf); tulisDraf(); $('#draf-info').innerHTML = '';
       upStatus(); baruSimpan = true; upStatus();
