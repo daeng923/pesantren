@@ -856,7 +856,7 @@ const PROV_SINGKAT = {
   'Kepulauan Bangka Belitung': 'Bangka Belitung', 'Nusa Tenggara Barat': 'NTB', 'Nusa Tenggara Timur': 'NTT',
   'DI Yogyakarta': 'DI Yogyakarta', 'Kepulauan Riau': 'Kepulauan Riau', 'Papua Pegunungan': 'Papua Pegunungan', 'Papua Barat Daya': 'Papua Barat Daya'
 };
-const ROLE_LABEL = { superadmin: 'Super admin', operator: 'Operator', admin_pondok: 'Admin pondok', viewer: 'Viewer' };
+const ROLE_LABEL = { superadmin: 'Super admin', operator: 'Operator pusat', operator_wilayah: 'Operator wilayah', operator_daerah: 'Operator daerah', admin_pondok: 'Admin pondok', viewer: 'Viewer' };
 const VERIF = {
   belum_verifikasi: { t: 'Belum diverifikasi', c: 'abu' },
   diajukan: { t: 'Menunggu verifikasi', c: 'emas' },
@@ -1033,7 +1033,7 @@ async function apiJaringan(action, params) {
   }
   return j.data;
 }
-const isStaff = () => S.user && (S.user.role === 'superadmin' || S.user.role === 'operator');
+const isStaff = () => S.user && ['superadmin', 'operator', 'operator_wilayah', 'operator_daerah'].includes(S.user.role);
 
 async function pubMeta() {
   if (!S.pubMeta) S.pubMeta = await api('publicMeta');
@@ -2349,7 +2349,16 @@ async function pagePanel({ el, q, ok }) {
   if (!ok()) return;
   const sv = st.status_verifikasi || {}, sd = st.status_data || {};
   const link = (o) => '#/panel' + qs(o);
+  let cakupan = '';
+  if (S.user.role === 'operator_wilayah') cakupan = 'Provinsi ' + S.user.wilayah_prov;
+  else if (S.user.role === 'operator_daerah') {
+    let kn = S.user.wilayah_kab;
+    try { const l = await api('refKab', { provinsi: S.user.wilayah_prov }); const k = l.find(x => x.kode === S.user.wilayah_kab); if (k) kn = k.nama; } catch (e) { }
+    cakupan = kn + ', ' + S.user.wilayah_prov;
+  }
+  if (!ok()) return;
   el.innerHTML = `<div class="wrap"><div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Panel operator</h1></div>${tabPanel('/panel')}
+    ${cakupan ? `<p class="muted" style="margin:0 0 14px">Cakupan Anda: <b>${esc(cakupan)}</b>. Anda hanya melihat dan mengelola pesantren di wilayah ini.</p>` : ''}
     <div class="ringkas-panel">
       <a href="${link({})}"><b>${ang(st.ringkasan.pesantren)}</b><span>Seluruh pesantren</span></a>
       <a href="${link({ status_verifikasi: 'diajukan' })}"><b>${ang(sv.diajukan || 0)}</b><span>Menunggu verifikasi</span></a>
@@ -2524,9 +2533,17 @@ async function pagePengguna({ el, ok }) {
   document.title = 'Pengguna — Panel';
   el.innerHTML = muat();
   const sa = S.user.role === 'superadmin';
-  const [users, und] = await Promise.all([api('listUsers'), sa ? api('listUndangan') : Promise.resolve([])]);
+  const [users, und, metaP] = await Promise.all([api('listUsers'), sa ? api('listUndangan') : Promise.resolve([]), api('meta')]);
   if (!ok()) return;
-  const perans = sa ? ['superadmin', 'operator', 'admin_pondok', 'viewer'] : ['admin_pondok', 'viewer'];
+  const rl = S.user.role;
+  const perans = sa ? ['superadmin', 'operator', 'operator_wilayah', 'operator_daerah', 'admin_pondok', 'viewer']
+    : rl === 'operator' ? ['operator_wilayah', 'operator_daerah', 'admin_pondok', 'viewer'] : ['admin_pondok'];
+  const kabNama = {};
+  await Promise.all([...new Set(users.filter(u => u.role === 'operator_daerah' && u.wilayah_prov).map(u => u.wilayah_prov))].map(async pv => {
+    try { (await api('refKab', { provinsi: pv })).forEach(k => { kabNama[k.kode] = k.nama; }); } catch (e) { }
+  }));
+  if (!ok()) return;
+  const wilTeks = u => u.role === 'operator_wilayah' ? esc(u.wilayah_prov) : u.role === 'operator_daerah' ? esc(kabNama[u.wilayah_kab] || u.wilayah_kab) + '<div class="muted kecil">' + esc(u.wilayah_prov) + '</div>' : '';
   const pesanSaya = u => u.id_user === S.user.id_user;
   el.innerHTML = `<div class="wrap"><div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Pengguna</h1></div>${tabPanel('/panel/pengguna')}
     ${sa ? undanganHtml(und) : ''}
@@ -2534,24 +2551,38 @@ async function pagePengguna({ el, ok }) {
       <div class="fl"><label for="u-email">Email</label><input id="u-email" type="email" autocomplete="off"></div>
       <div class="fl"><label for="u-nama">Nama</label><input id="u-nama" type="text" autocomplete="off"></div>
       <div class="fl"><label for="u-role">Peran</label><select id="u-role">${perans.map(r => `<option value="${r}">${ROLE_LABEL[r]}</option>`).join('')}</select></div>
+      <div class="fl" id="u-prov-bungkus"><label for="u-prov">Provinsi cakupan</label><select id="u-prov"><option value="">Pilih provinsi…</option>${metaP.provinsi.map(p => `<option>${esc(p.nilai)}</option>`).join('')}</select></div>
+      <div class="fl" id="u-kab-bungkus"><label for="u-kab">Kabupaten/kota cakupan</label><select id="u-kab"><option value="">Pilih provinsi dulu</option></select></div>
       <div class="fl ac" id="u-pes-bungkus"><label for="u-pes">Pesantren (untuk admin pondok)</label><input id="u-pes" type="text" placeholder="Ketik nama pesantren…" autocomplete="off"><input id="u-pes-id" type="hidden"></div>
       <div class="penuh"><div id="u-err" class="galat" role="alert" style="display:none;margin:0 0 12px"></div><button class="btn" type="submit">Buat akun</button></div>
     </div></form>
     <div class="hasil-info"><span><b>${users.length}</b> akun</span></div>
-    <div class="tabel-bungkus"><table class="tbl"><thead><tr><th>Nama</th><th>Email</th><th>Peran</th><th>Pesantren</th><th>Status</th><th>Login terakhir</th><th></th></tr></thead><tbody>
-    ${users.map(u => `<tr><td>${esc(u.nama)}</td><td class="potong">${esc(u.email)}</td><td>${esc(ROLE_LABEL[u.role] || u.role)}</td><td class="nowrap">${u.id_pesantren ? `<a href="#/pesantren/${esc(u.id_pesantren)}">${esc(u.id_pesantren)}</a>` : '<span class="muted">—</span>'}</td><td><span class="chip ${u.aktif ? '' : 'merah'}">${u.aktif ? 'Aktif' : 'Nonaktif'}</span>${u.wajib_ganti ? ' <span class="chip emas">Password sementara</span>' : ''}</td><td class="nowrap">${esc(u.login_terakhir) || '<span class="muted">Belum pernah</span>'}</td>
+    <div class="tabel-bungkus"><table class="tbl"><thead><tr><th>Nama</th><th>Email</th><th>Peran</th><th>Pesantren / cakupan</th><th>Status</th><th>Login terakhir</th><th></th></tr></thead><tbody>
+    ${users.map(u => `<tr><td>${esc(u.nama)}</td><td class="potong">${esc(u.email)}</td><td>${esc(ROLE_LABEL[u.role] || u.role)}</td><td class="${u.id_pesantren ? 'nowrap' : ''}">${u.id_pesantren ? `<a href="#/pesantren/${esc(u.id_pesantren)}">${esc(u.id_pesantren)}</a>` : (wilTeks(u) || '<span class="muted">—</span>')}</td><td><span class="chip ${u.aktif ? '' : 'merah'}">${u.aktif ? 'Aktif' : 'Nonaktif'}</span>${u.wajib_ganti ? ' <span class="chip emas">Password sementara</span>' : ''}</td><td class="nowrap">${esc(u.login_terakhir) || '<span class="muted">Belum pernah</span>'}</td>
       <td class="nowrap">${pesanSaya(u) ? '<span class="muted kecil">Akun Anda</span>' : `<button class="btn sek kecil" type="button" data-reset="${esc(u.id_user)}" data-e="${esc(u.email)}">Reset password</button> <button class="btn ${u.aktif ? 'bahaya' : 'sek'} kecil" type="button" data-aktif="${esc(u.id_user)}" data-to="${u.aktif ? '0' : '1'}">${u.aktif ? 'Nonaktifkan' : 'Aktifkan'}</button>`}</td></tr>`).join('')}
     </tbody></table></div></div>`;
   pasangAutocomplete($('#u-pes-bungkus'), '#u-pes', '#u-pes-id');
   if (sa) pasangUndangan(el);
-  const tg = () => { $('#u-pes-bungkus').style.display = $('#u-role').value === 'admin_pondok' ? '' : 'none'; };
+  const tg = () => {
+    const r = $('#u-role').value;
+    $('#u-pes-bungkus').style.display = r === 'admin_pondok' ? '' : 'none';
+    $('#u-prov-bungkus').style.display = (r === 'operator_wilayah' || r === 'operator_daerah') ? '' : 'none';
+    $('#u-kab-bungkus').style.display = r === 'operator_daerah' ? '' : 'none';
+  };
   $('#u-role').onchange = tg; tg();
+  $('#u-prov').onchange = async () => {
+    const pv = $('#u-prov').value, sel = $('#u-kab');
+    if (!pv) { sel.innerHTML = '<option value="">Pilih provinsi dulu</option>'; return; }
+    sel.innerHTML = '<option value="">Memuat…</option>';
+    try { const l = await api('refKab', { provinsi: pv }); sel.innerHTML = '<option value="">Pilih kabupaten/kota…</option>' + l.map(k => `<option value="${esc(k.kode)}">${esc(k.nama)}</option>`).join(''); }
+    catch (e) { sel.innerHTML = '<option value="">Gagal memuat</option>'; }
+  };
   $('#f-user').onsubmit = async e => {
     e.preventDefault();
     const er = $('#u-err'); er.style.display = 'none';
     const b = $('button[type=submit]', el); b.disabled = true;
     try {
-      const r = await api('saveUser', { email: $('#u-email').value, nama: $('#u-nama').value, role: $('#u-role').value, id_pesantren: $('#u-pes-id').value });
+      const r = await api('saveUser', { email: $('#u-email').value, nama: $('#u-nama').value, role: $('#u-role').value, id_pesantren: $('#u-pes-id').value, wilayah_prov: $('#u-prov').value, wilayah_kab: $('#u-kab').value });
       tampilRahasia('Akun dibuat', 'Berikan data masuk ini kepada pemilik akun.', r.akun.email, r.akun.password_awal);
       render();
     } catch (x) { if (!x.ditangani) { er.textContent = x.message; er.style.display = 'block'; } b.disabled = false; }
