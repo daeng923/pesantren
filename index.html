@@ -946,7 +946,7 @@ function muatSesi() {
     const raw = JSON.parse(store.get('lp2pp.sesi') || 'null');
     if (!raw || !raw.token) return;
     const p = JSON.parse(atob(raw.token.split('.')[0].replace(/-/g, '+').replace(/_/g, '/')));
-    if (!p.e || p.e < Date.now()) { store.del('lp2pp.sesi'); return; }
+    if (!p.e || p.e < Date.now()) { store.del('lp2pp.sesi'); if (typeof cacheBersih === 'function') cacheBersih(); return; }
     S.token = raw.token; S.user = raw.user;
   } catch (e) { store.del('lp2pp.sesi'); }
 }
@@ -1884,7 +1884,7 @@ async function pageGantiPassword({ el }) {
     ${wajib ? '<p class="info kecil" style="margin-top:12px">Anda memakai password sementara. Buat password baru sebelum melanjutkan.</p>' : ''}
     <form id="f-gp" novalidate>
       <div class="fl"><label for="g-lama">Password lama</label><input id="g-lama" type="password" autocomplete="current-password" required></div>
-      <div class="fl"><label for="g-baru">Password baru</label><input id="g-baru" type="password" autocomplete="new-password" required><span class="hint">Minimal 8 karakter, memuat huruf dan angka.</span></div>
+      <div class="fl"><label for="g-baru">Password baru</label><input id="g-baru" type="password" autocomplete="new-password" required><span class="hint">Minimal 10 karakter, memuat huruf dan angka.</span></div>
       <div class="fl"><label for="g-ulang">Ulangi password baru</label><input id="g-ulang" type="password" autocomplete="new-password" required></div>
       <div id="g-err" class="galat" role="alert" style="margin:0;display:none"></div>
       <button class="btn" type="submit">Simpan password baru</button>
@@ -1949,7 +1949,7 @@ async function pageToken({ el, ok }) {
         <div class="fl"><label for="u-em">Email admin <span class="wajib">*</span></label><input id="u-em" type="text" data-aturan="email" inputmode="email" autocapitalize="off" spellcheck="false" autocomplete="username" placeholder="nama@domain.com" value="${esc(d.email || '')}"><span class="hint">Email ini dipakai untuk masuk. Pakai email yang aktif.</span></div>
         <div class="fl"><label for="u-nm">Nama admin <span class="wajib">*</span></label><input id="u-nm" type="text" data-aturan="teks" autocomplete="name" value="${esc(d.nama_admin || '')}"><span class="hint">Nama lengkap pengelola data pesantren ini.</span></div>
         <div class="fl"><label for="u-pd">Nama pondok <span class="wajib">*</span></label><input id="u-pd" type="text" data-aturan="teks" value="${esc(d.nama_pondok || d.nama_pesantren || '')}"><span class="hint">Tulis nama pondok sesuai papan nama. Super admin akan mencocokkannya dengan data terdaftar.</span></div>
-        <div class="fl"><label for="u-pw">Buat password <span class="wajib">*</span></label><input id="u-pw" type="password" autocomplete="new-password"><span class="hint">Minimal 8 karakter, memuat huruf dan angka.</span></div>
+        <div class="fl"><label for="u-pw">Buat password <span class="wajib">*</span></label><input id="u-pw" type="password" autocomplete="new-password"><span class="hint">Minimal 10 karakter, memuat huruf dan angka.</span></div>
         <div class="fl"><label for="u-pw2">Ulangi password <span class="wajib">*</span></label><input id="u-pw2" type="password" autocomplete="new-password"></div>
         <div id="u-err" class="galat" role="alert" style="margin:0;display:none"></div>
         <button class="btn" type="submit">Kirim untuk disetujui</button>
