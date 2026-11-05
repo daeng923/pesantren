@@ -253,14 +253,17 @@ input[readonly],input:disabled,select:disabled,textarea:disabled{background:var(
 .und-aksi{display:flex;gap:8px;flex-wrap:wrap}
 .tokenbox{font:700 clamp(1.4rem,5vw,1.9rem)/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;text-align:center}
 /* peta sebaran */
-.peta-grid{display:grid;grid-template-columns:minmax(0,2.3fr) minmax(300px,1fr);gap:24px;margin-top:18px;align-items:start}
+.peta-grid{display:grid;grid-template-columns:minmax(0,2.3fr) minmax(300px,1fr);gap:24px;margin-top:18px;align-items:stretch}
 .peta-kartu,.peta-panel{background:var(--putih);border:1px solid var(--garis);border-radius:var(--r3);padding:16px}
 .peta-bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
 .peta-seg{display:inline-flex;border:1.5px solid var(--h900);border-radius:999px;overflow:hidden}
 .peta-seg button{font:inherit;font-weight:600;padding:7px 18px;background:#fff;color:var(--h900);border:0;cursor:pointer}
 .peta-seg button[aria-pressed=true]{background:var(--h900);color:#fff}
 .peta-bar select{max-width:260px}
-.peta-kanvas{position:relative;background:var(--h50);border-radius:var(--r2);overflow:hidden}
+.peta-kartu{display:flex;flex-direction:column}
+.peta-kanvas{position:relative;background:var(--h50);border-radius:var(--r2);overflow:hidden;flex:1;display:flex;align-items:center}
+#peta-gulir{width:100%}
+.pp-daftar.gulir{max-height:440px;overflow-y:auto;padding-right:4px}
 .peta-kanvas svg{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .peta-kanvas svg.geser{touch-action:none;cursor:grab}
 .pv{stroke:#fff;stroke-width:.8;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .3s}
@@ -1412,9 +1415,9 @@ function pasangPeta(root, provs) {
 
   /* ---- panel ---- */
   function panelUmum() {
-    const u = urut(), mx = Math.max(1, nilai(u[0])), tampil = semua ? u : u.slice(0, 10);
+    const u = urut(), mx = Math.max(1, nilai(u[0])), tampil = semua ? u : u.slice(0, 8);
     panel.innerHTML = `<h3>Peringkat provinsi</h3><p class="muted kecil">Menurut jumlah ${SAT[metrik]}. Klik provinsi di peta atau di daftar ini untuk melihat rincian.</p>
-      <ol class="pp-daftar">${tampil.map((n, i) => `<li><button type="button" class="pp-baris" data-pilih="${esc(n)}"><span class="no">${i + 1}</span><span>${esc(n)}</span><span class="n">${ang(nilai(n))}</span><span class="garis"><b style="width:${Math.max(nilai(n) ? 2 : 0, Math.round(nilai(n) / mx * 100))}%"></b></span></button></li>`).join('')}</ol>
+      <ol class="pp-daftar${semua ? ' gulir' : ''}">${tampil.map((n, i) => `<li><button type="button" class="pp-baris" data-pilih="${esc(n)}"><span class="no">${i + 1}</span><span>${esc(n)}</span><span class="n">${ang(nilai(n))}</span><span class="garis"><b style="width:${Math.max(nilai(n) ? 2 : 0, Math.round(nilai(n) / mx * 100))}%"></b></span></button></li>`).join('')}</ol>
       <div class="pp-aksi"><button class="btn sek kecil" type="button" data-semua>${semua ? 'Ringkas daftar' : 'Tampilkan semua ' + nama.length + ' provinsi'}</button></div>`;
   }
   function panelProv(n) {
