@@ -2429,6 +2429,23 @@ async function pageTambah({ el, ok }) {
     <button class="btn" type="submit" id="btn-tambah">Tambah pesantren</button>
   </form></div>`;
   let kabKode = {};
+  const terkunci = S.user.role === 'operator_wilayah' || S.user.role === 'operator_daerah';
+  if (terkunci) {
+    /* Operator wilayah/daerah: provinsi (dan kab/kota untuk daerah) dikunci sesuai cakupan, pilihan kab/kota diambil dari database wilayah. */
+    const pv = S.user.wilayah_prov;
+    $('#t-prov').innerHTML = `<option value="${esc(pv)}">${esc(pv)}</option>`; $('#t-prov').value = pv; $('#t-prov').disabled = true;
+    let lk = [];
+    try { lk = await api('refKab', { provinsi: pv }); } catch (e) { }
+    if (!ok()) return;
+    kabKode = {}; lk.forEach(k => { kabKode[k.nama.toLowerCase()] = k.kode; });
+    const daerah = S.user.role === 'operator_daerah';
+    const dipilih = daerah ? lk.filter(k => k.kode === S.user.wilayah_kab) : lk;
+    $('#t-kab').outerHTML = `<select id="t-kab" ${daerah ? 'disabled' : ''}>${daerah ? '' : '<option value="">— Pilih —</option>'}${dipilih.map(k => `<option value="${esc(k.nama)}">${esc(k.nama)}</option>`).join('')}</select>`;
+    const hint = document.createElement('span'); hint.className = 'hint';
+    hint.textContent = daerah ? 'Terkunci sesuai cakupan daerah Anda.' : 'Pilihan hanya kabupaten/kota di provinsi Anda.';
+    $('#t-kab').parentNode.appendChild(hint);
+    $('#t-prov').parentNode.insertAdjacentHTML('beforeend', '<span class="hint">Terkunci sesuai cakupan Anda.</span>');
+  }
   $('#t-prov').onchange = async () => {
     try { const l = await api('refKab', { provinsi: $('#t-prov').value }); kabKode = {}; l.forEach(k => kabKode[k.nama.toLowerCase()] = k.kode); $('#dl-kab').innerHTML = l.map(k => `<option value="${esc(k.nama)}">`).join(''); } catch (e) { }
   };
@@ -2436,6 +2453,7 @@ async function pageTambah({ el, ok }) {
     const kode = kabKode[$('#t-kab').value.trim().toLowerCase()]; if (!kode) return;
     try { const l = await api('refKec', { kode_kab: kode }); $('#dl-kec').innerHTML = l.map(k => `<option value="${esc(k.nama)}">`).join(''); } catch (e) { }
   };
+  if (terkunci && S.user.role === 'operator_daerah') $('#t-kab').onchange();
   pasangKunci($('#f-tambah'));
   const kirim = async (abaikan) => {
     const er = $('#t-err'); er.style.display = 'none';
