@@ -983,7 +983,7 @@ const LABEL = {
   dibuat_pada: 'Dibuat pada', diubah_pada: 'Terakhir diubah', diubah_oleh: 'Diubah oleh', status_data: 'Kelengkapan isian'
 };
 const HINT = {
-  nsp: 'Kosongkan bila belum punya NSP. Isi 12 digit angka.', nrpm: '12 digit angka. Diisi operator LP2 PPM.', maps_url: 'Tempel tautan titik lokasi dari Google Maps.',
+  nsp: 'Kosongkan bila belum punya NSP. Isi 12 digit angka.', nrpm: '12 digit angka. Diisi operator LP2 PPM.', maps_url: 'Tempel tautan titik lokasi dari Google Maps, atau tulis koordinatnya (contoh: -7.9797, 112.6304).',
   santri_putra: 'Isi 0 bila tidak ada.', santri_putri: 'Isi 0 bila tidak ada.', telp: 'Boleh lebih dari satu, pisahkan dengan garis miring (/).',
   lahan_total_ha: 'Tulis dalam hektar. Contoh: 1,5', luas_bangunan_m2: 'Tulis dalam meter persegi.', gtk_kekurangan_di: 'Tulis dengan angka. Contoh: 5',
   jumlah_judul_buku: 'Isi bila sudah memakai buku ajar LP2 PPM. Contoh: 2', sejarah: 'Maksimal sekitar 1.000 kata.', penyelenggara: 'Contoh: PDM Bantul, PCM Cileungsi',
@@ -1906,7 +1906,7 @@ async function pageProfil({ el, args, ok }) {
   });
   const foto = d.dokumen.filter(x => x.jenis === 'foto');
   const berkas = d.dokumen.filter(x => x.jenis !== 'foto');
-  const maps = safeUrl(p.maps_url);
+  const kd = kordTeks(p.maps_url), maps = safeUrl(p.maps_url) || (kd ? urlGmaps(kd[0], kd[1]) : '');
   const vst = VERIF[p.status_verifikasi] || VERIF.belum_verifikasi;
   const lok = [p.kecamatan, p.kab_kota, p.provinsi].filter(Boolean).join(', ');
   const sp = pilihSampul(foto), sampulProfil = sp && (sp.eksplisit || !sp.mungkinLogo) && /^https:\/\/[^\s'"<>\\]+$/.test(sp.f.thumb || '') ? sp.f : null;
@@ -2119,7 +2119,9 @@ const JUDUL_BERKAS = { foto: 'Foto pesantren (logo, bangunan, kegiatan)', aset: 
 
 /* ---- kunci isian sesuai jenisnya (angka, tahun, desimal, telepon, email, tautan, nomor 12 digit) ---- */
 const RX_URL = /^(https?:\/\/|@)/i, RX_DOMAIN = /^[\w.-]+\.[a-z]{2,}(\/|$)/i;
+const kordTeks = v => { const m = String(v || '').match(/^\s*(-?\d{1,2}\.\d{3,})\s*[,;]\s*(-?\d{1,3}\.\d{3,})\s*$/); if (!m) return null; const a = +m[1], b = +m[2]; return (a >= -11.5 && a <= 6.5 && b >= 94 && b <= 141.5) ? [a, b] : null; };
 const ATURAN = {
+  maps: { bersih: v => v.replace(/[\u0000-\u001F\u007F]+/g, ' ').slice(0, 500), cek: v => (!v || v === '-' || /^https?:\/\//i.test(v.trim()) || kordTeks(v)) ? '' : 'Isi dengan tautan Google Maps (https://…) atau koordinat, contoh: -7.9797, 112.6304.', pesan: '', ph: 'https://maps.app.goo.gl/… atau -7.9797, 112.6304', im: 'text' },
   angka: { bersih: v => v.replace(/\D/g, '').slice(0, 8), cek: () => '', pesan: 'Kolom ini hanya menerima angka 0–9.', ph: '0', im: 'numeric' },
   tahun: { bersih: v => v.replace(/\D/g, '').slice(0, 4), cek: v => { if (!v) return ''; const y = +v, n = new Date().getFullYear(); return (v.length < 4 || y < 1800 || y > n) ? `Tahun harus 4 digit, antara 1800 dan ${n}.` : ''; }, pesan: 'Kolom ini hanya menerima angka.', ph: 'contoh: 1995', im: 'numeric' },
   desimal: { bersih: v => { let o = '', sep = false; for (const ch of v) { if (/\d/.test(ch)) o += ch; else if ((ch === ',' || ch === '.') && !sep) { o += ch; sep = true; } } return o.slice(0, 14); }, cek: v => (v && isNaN(Number(v.replace(',', '.')))) ? 'Isi dengan angka, contoh 1,5 atau 2.5.' : '', pesan: 'Hanya angka, dengan satu koma atau titik untuk desimal.', ph: 'contoh: 2,5', im: 'decimal' },
@@ -2130,7 +2132,7 @@ const ATURAN = {
   teks: { bersih: v => v.replace(/[\u0000-\u001F\u007F]+/g, ' ').slice(0, 500), cek: () => '' },
   teks_panjang: { bersih: v => v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').slice(0, 20000), cek: () => '' }
 };
-function jenisAturan(c) { if (c.kolom === 'nsp' || c.kolom === 'nrpm') return 'id12'; return ATURAN[c.tipe] ? c.tipe : ''; }
+function jenisAturan(c) { if (c.kolom === 'nsp' || c.kolom === 'nrpm') return 'id12'; if (c.kolom === 'maps_url') return 'maps'; return ATURAN[c.tipe] ? c.tipe : ''; }
 function tampilErr(f, m) {
   f.classList.toggle('salah', !!m);
   let er = $('.err', f);
