@@ -2914,6 +2914,22 @@ async function pagePembaruan({ el, ok }) {
 const LEAFLET = { css: ['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css', 'sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H'],
   js: ['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js', 'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'] };
 let petaInst = null, leafletJanji = null;
+/* Batas provinsi yang rinci (geoBoundaries) dimuat per provinsi dari folder batas/. Provinsi Papua hasil pemekaran belum ada di sumber itu, memakai batas sederhana yang tertanam. */
+const BATAS_RINCI = new Set(['Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Riau', 'Kepulauan Riau', 'Jambi', 'Sumatera Selatan', 'Kepulauan Bangka Belitung', 'Bengkulu', 'Lampung', 'DKI Jakarta', 'Jawa Barat', 'Jawa Tengah', 'DI Yogyakarta', 'Jawa Timur', 'Banten', 'Bali', 'Nusa Tenggara Barat', 'Nusa Tenggara Timur', 'Kalimantan Barat', 'Kalimantan Tengah', 'Kalimantan Selatan', 'Kalimantan Timur', 'Kalimantan Utara', 'Sulawesi Utara', 'Sulawesi Tengah', 'Sulawesi Selatan', 'Sulawesi Tenggara', 'Gorontalo', 'Sulawesi Barat', 'Maluku', 'Maluku Utara']);
+async function muatBatas(prov) {
+  const kasar = PETA_BATAS[prov] || null;
+  if (!BATAS_RINCI.has(prov)) return { cincin: kasar, rinci: false };
+  const slug = prov.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 6000);
+  try {
+    const r = await fetch('batas/' + slug + '.json', { signal: ac.signal });
+    if (!r.ok) throw new Error('batas');
+    const j = await r.json();
+    const cincin = (j.r || []).map(f => { const o = []; for (let i = 0; i + 1 < f.length; i += 2) o.push([f[i], f[i + 1]]); return o; }).filter(c => c.length > 2);
+    if (!cincin.length) throw new Error('batas');
+    return { cincin, rinci: true };
+  } catch (e) { return { cincin: kasar, rinci: false }; } finally { clearTimeout(t); }
+}
 function muatLeaflet() {
   if (window.L && window.L.map) return Promise.resolve(window.L);
   if (leafletJanji) return leafletJanji;
@@ -2936,7 +2952,7 @@ async function pagePetaProv({ el, args, ok }) {
   await pubMeta(); if (!ok()) return;
   const daftarProv = S.pubMeta.provinsi.map(x => x.nilai);
   if (!daftarProv.includes(prov)) { el.innerHTML = `<div class="wrap"><div class="galat">Provinsi tidak dikenal. <a href="#/sebaran">Kembali ke peta sebaran</a>.</div></div>`; return; }
-  const [d, L, rg] = await Promise.all([api('petaTitik', { provinsi: prov }), muatLeaflet().catch(() => null), api('petaTitik', {}).catch(() => ({ per_provinsi: {} }))]);
+  const [d, L, rg, bt] = await Promise.all([api('petaTitik', { provinsi: prov }), muatLeaflet().catch(() => null), api('petaTitik', {}).catch(() => ({ per_provinsi: {} })), muatBatas(prov)]);
   const nTitik = n => (rg.per_provinsi && rg.per_provinsi[n]) || 0;
   if (!ok()) return;
   const t = d.titik.slice().sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
@@ -2949,7 +2965,7 @@ async function pagePetaProv({ el, args, ok }) {
       <div class="pt-peta" id="pt-peta" role="region" aria-label="Peta titik pondok ${esc(prov)}"></div>
       <aside class="pt-daftar" aria-label="Daftar pesantren bertitik"><div class="fl"><label for="pt-q">Cari pesantren</label><input id="pt-q" type="search" autocomplete="off"></div><ul id="pt-list"></ul></aside></div>
       ${L ? '' : '<div class="galat" style="margin-top:12px">Peta dasar tidak dapat dimuat. Periksa koneksi internet; daftar di samping tetap bisa dipakai dan setiap pesantren punya tautan Google Maps.</div>'}`}
-    <p class="kecil muted peta-kredit">Peta dasar © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors. Titik bersumber dari tautan Google Maps yang diisi pengelola pesantren, sehingga letaknya perlu dicek langsung bila akan dikunjungi.</p></div>`;
+    <p class="kecil muted peta-kredit">Peta dasar © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors. Titik bersumber dari tautan Google Maps yang diisi pengelola pesantren, sehingga letaknya perlu dicek langsung bila akan dikunjungi. Garis batas provinsi hanya untuk memperjelas fokus peta dan bukan batas administratif resmi: ${bt.rinci ? 'sumber <a href="https://www.geoboundaries.org" target="_blank" rel="noopener noreferrer">geoBoundaries</a> (CC BY 4.0; Runfola dkk., 2020, PLOS ONE 15(4): e0231866), disederhanakan' : 'sumber <a href="https://github.com/denyherianto/indonesia-geojson-topojson-maps-with-38-provinces" target="_blank" rel="noopener noreferrer">Indonesia GeoJSON &amp; TopoJSON Maps</a> (CC BY 4.0), sangat disederhanakan'}.</p></div>`;
   $('#pt-prov').onchange = e => go('/peta/' + encodeURIComponent(e.target.value));
   if (!t.length) return;
   const ulEl = $('#pt-list'), pen = {};
@@ -2962,7 +2978,7 @@ async function pagePetaProv({ el, args, ok }) {
   peta.on('focus', () => peta.scrollWheelZoom.enable()); peta.on('blur', () => peta.scrollWheelZoom.disable());
   const warnaUtama = (getComputedStyle(document.documentElement).getPropertyValue('--h700') || '').trim() || '#1f6b4a';
   const radius = n => n >= 1000 ? 13 : n >= 300 ? 11 : n >= 100 ? 9 : 7;
-  const batas = PETA_BATAS[prov];
+  const batas = bt.cincin;
   let topeng = null, garis = null;
   if (batas && batas.length) {
     topeng = L.polygon([[[-89, -180], [-89, 180], [89, 180], [89, -180]]].concat(batas), { stroke: false, fillColor: '#eef2ee', fillOpacity: .78, interactive: false, smoothFactor: 1 }).addTo(peta);
@@ -2979,8 +2995,8 @@ async function pagePetaProv({ el, args, ok }) {
     pen[x.id] = { m, x };
   });
   peta.fitBounds(garis ? garis.getBounds() : grup.getBounds(), { padding: [34, 34], maxZoom: 12 });
-  ulEl.onclick = e => { const b = e.target.closest('.pt-item'); if (!b) return; const k = pen[b.dataset.id]; if (!k) return; peta.flyTo([k.x.lat, k.x.lng], Math.max(peta.getZoom(), 13), { duration: .6 }); setTimeout(() => k.m.openPopup(), 650); $('#pt-peta').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
-  setTimeout(() => peta.invalidateSize(), 80);
+  ulEl.onclick = e => { const b = e.target.closest('.pt-item'); if (!b) return; const k = pen[b.dataset.id]; if (!k) return; peta.flyTo([k.x.lat, k.x.lng], Math.max(peta.getZoom(), 13), { duration: .6 }); setTimeout(() => { if (petaInst === peta) k.m.openPopup(); }, 650); $('#pt-peta').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
+  setTimeout(() => { if (petaInst === peta) peta.invalidateSize(); }, 80);
 }
 
 /* ====================================================================
