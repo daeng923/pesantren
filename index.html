@@ -1040,6 +1040,24 @@ const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = se
    SESI & API
    ==================================================================== */
 const S = { token: null, user: null, pubMeta: null, authMeta: null, cfg: null, cfgServer: {}, cfgDraftAktif: false, pratinjau: false, draf: null };
+
+/* Pengaman ringan: klik kanan, F12, dan pintasan alat pengembang/lihat sumber dinonaktifkan untuk pengunjung dan pengguna biasa.
+   Ini hanya penghalang agar tidak mudah iseng. Bukan pengaman data: perlindungan sebenarnya ada di server (hak akses dicek di Apps Script). Super admin dikecualikan agar bisa memeriksa masalah. */
+(function () {
+  const bebas = () => { try { return !!(S && S.user && S.user.role === 'superadmin'); } catch (e) { return false; } };
+  const kolomIsi = t => !!(t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]'));
+  document.addEventListener('contextmenu', e => { if (bebas() || kolomIsi(e.target)) return; e.preventDefault(); }, true);
+  document.addEventListener('keydown', e => {
+    if (bebas()) return;
+    const k = String(e.key || '').toLowerCase(), c = e.ctrlKey || e.metaKey;
+    const tutup = e.key === 'F12'
+      || (c && e.shiftKey && ['i', 'j', 'c', 'k'].includes(k))
+      || (c && !e.shiftKey && !e.altKey && k === 'u')
+      || (e.metaKey && e.altKey && ['i', 'j', 'c', 'u'].includes(k));
+    if (tutup) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  document.addEventListener('dragstart', e => { if (!bebas() && e.target && e.target.tagName === 'IMG') e.preventDefault(); }, true);
+})();
 function muatSesi() {
   try {
     const raw = JSON.parse(store.get('lp2pp.sesi') || 'null');
