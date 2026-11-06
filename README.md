@@ -109,4 +109,6 @@ Dikembangkan oleh Munawir Gani ([@daeng923](https://github.com/daeng923)) untuk 
 
 ## Lisensi
 
-[Tentukan sebelum dipublikasikan.] Kode dan data dalam repositori ini dimiliki dan dikelola oleh LP2 PPM. Tentukan apakah kode dilisensikan terbuka (misalnya MIT) atau semua hak dilindungi, lalu tambahkan berkas `LICENSE`.
+Hak cipta © 2026 Lembaga Pengembangan Pesantren Pimpinan Pusat Muhammadiyah (LP2 PPM). Seluruh hak dilindungi.
+
+Kode dan data dalam repositori ini tidak boleh disalin, diubah, atau disebarkan ulang tanpa izin tertulis dari LP2 PPM. Pustaka dan data pihak ketiga tetap tunduk pada lisensinya masing-masing (lihat bagian Sumber data dan atribusi).
