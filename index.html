@@ -2930,13 +2930,14 @@ async function pagePetaProv({ el, args, ok }) {
   await pubMeta(); if (!ok()) return;
   const daftarProv = S.pubMeta.provinsi.map(x => x.nilai);
   if (!daftarProv.includes(prov)) { el.innerHTML = `<div class="wrap"><div class="galat">Provinsi tidak dikenal. <a href="#/sebaran">Kembali ke peta sebaran</a>.</div></div>`; return; }
-  const [d, L] = await Promise.all([api('petaTitik', { provinsi: prov }), muatLeaflet().catch(() => null)]);
+  const [d, L, rg] = await Promise.all([api('petaTitik', { provinsi: prov }), muatLeaflet().catch(() => null), api('petaTitik', {}).catch(() => ({ per_provinsi: {} }))]);
+  const nTitik = n => (rg.per_provinsi && rg.per_provinsi[n]) || 0;
   if (!ok()) return;
   const t = d.titik.slice().sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
   el.innerHTML = `<div class="wrap pt-hal">
     <div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Peta pondok ${esc(prov)}</h1></div>
     <p class="muted" style="max-width:70ch;margin:0 0 14px"><b>${ang(t.length)}</b> dari ${ang(d.total_pesantren)} pesantren di provinsi ini sudah memiliki titik lokasi${d.tanpa_titik ? `. ${ang(d.tanpa_titik)} lainnya belum ada titiknya` : ''}. Titik berasal dari tautan Google Maps yang diisi pada profil pesantren.</p>
-    <div class="pt-bar"><div class="fl"><label for="pt-prov">Provinsi</label><select id="pt-prov">${daftarProv.map(n => `<option${n === prov ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
+    <div class="pt-bar"><div class="fl"><label for="pt-prov">Provinsi</label><select id="pt-prov">${daftarProv.map(n => `<option value="${esc(n)}"${n === prov ? ' selected' : ''}>${esc(n)} (${ang(nTitik(n))} titik)</option>`).join('')}</select></div>
       <a class="btn sek kecil" href="#/direktori${qs({ provinsi: prov })}">Lihat sebagai daftar</a><a class="btn sek kecil" href="#/sebaran">Peta sebaran nasional</a></div>
     ${t.length === 0 ? `<div class="kosong-hal"><p>Belum ada titik lokasi pesantren untuk ${esc(prov)}.</p></div>` : `<div class="pt-grid">
       <div class="pt-peta" id="pt-peta" role="region" aria-label="Peta titik pondok ${esc(prov)}"></div>
