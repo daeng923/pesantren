@@ -739,6 +739,8 @@ footer a{color:#fff}
 .pt-item.aktif{box-shadow:inset 3px 0 0 var(--emas)}
 .pt-pop{font-size:.95rem;line-height:1.45;min-width:190px}
 .pt-pop a{color:var(--h700)}
+.pt-info{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 16px;padding:12px 16px;background:var(--h50);border:1px solid var(--garis);border-left:4px solid var(--emas);border-radius:var(--r)}
+.pt-info p{margin:0;max-width:68ch}
 .pt-fokus{display:inline-flex;align-items:center;gap:8px;min-height:40px;font-weight:500;cursor:pointer}
 .pt-fokus input{width:18px;height:18px;accent-color:var(--h700)}
 .leaflet-tooltip.pt-tip{background:var(--h900);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-size:.92rem;line-height:1.35;box-shadow:0 4px 14px rgba(0,0,0,.25);white-space:normal;max-width:260px}
@@ -2943,6 +2945,16 @@ function muatLeaflet() {
 }
 const urlGmaps = (lat, lng) => 'https://www.google.com/maps?q=' + lat + ',' + lng;
 
+function kotakInfoPeta() {
+  const u = S.user;
+  let isi;
+  if (!u) isi = `<p><b>Pondok Anda belum ada di peta?</b> Masuk menggunakan akun admin pondok yang diberikan oleh LP2 PPM, lalu isi tautan Google Maps pada profil pondok Anda.</p><a class="btn kecil" href="#/masuk">Masuk sebagai admin pondok</a>`;
+  else if (u.role === 'admin_pondok' && u.id_pesantren) isi = `<p><b>Pondok Anda belum ada di peta?</b> Isi kolom "Link Maps/GPS" pada profil pondok Anda dengan tautan lokasi dari Google Maps. Titik akan muncul di peta setelah disimpan.</p><a class="btn kecil" href="#/ubah/${esc(u.id_pesantren)}">Perbarui lokasi pondok saya</a>`;
+  else if (isStaff()) isi = `<p><b>Pondok belum ada di peta?</b> Proses tautan Maps yang sudah ada atau isi titiknya secara manual melalui panel.</p><a class="btn kecil" href="#/panel/peta">Buka Titik peta di panel</a>`;
+  else return '';
+  return `<div class="pt-info" role="note">${isi}</div>`;
+}
+
 async function pagePetaProv({ el, args, ok }) {
   clearInterval(sliderTimer);
   if (petaInst) { try { petaInst.remove(); } catch (e) { } petaInst = null; }
@@ -2959,6 +2971,7 @@ async function pagePetaProv({ el, args, ok }) {
   el.innerHTML = `<div class="wrap pt-hal">
     <div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Peta pondok ${esc(prov)}</h1></div>
     <p class="muted" style="max-width:70ch;margin:0 0 14px"><b>${ang(t.length)}</b> dari ${ang(d.total_pesantren)} pesantren di provinsi ini sudah memiliki titik lokasi${d.tanpa_titik ? `. ${ang(d.tanpa_titik)} lainnya belum ada titiknya` : ''}. Titik berasal dari tautan Google Maps yang diisi pada profil pesantren.</p>
+    ${kotakInfoPeta()}
     <div class="pt-bar"><div class="fl"><label for="pt-prov">Provinsi</label><select id="pt-prov">${daftarProv.map(n => `<option value="${esc(n)}"${n === prov ? ' selected' : ''}>${esc(n)} (${ang(nTitik(n))} titik)</option>`).join('')}</select></div>
       <a class="btn sek kecil" href="#/direktori${qs({ provinsi: prov })}">Lihat sebagai daftar</a><a class="btn sek kecil" href="#/sebaran">Peta sebaran nasional</a><label class="pt-fokus"><input type="checkbox" id="pt-fokus" checked> Redupkan provinsi lain</label></div>
     ${t.length === 0 ? `<div class="kosong-hal"><p>Belum ada titik lokasi pesantren untuk ${esc(prov)}.</p></div>` : `<div class="pt-grid">
