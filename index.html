@@ -722,6 +722,42 @@ footer a{color:#fff}
 @media (max-width:640px){.isian-utama{grid-template-columns:1fr}.isian-rinci{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.isian-rinci:not([hidden]){animation:munculTurun .2s var(--ease) both}}
 
+/* VERIFIKASI MASSAL, KONTAK WA, PEMANTAUAN */
+.tautan{background:none;border:0;padding:0 0 0 10px;color:var(--h700);font:inherit;text-decoration:underline;cursor:pointer}
+.tautan[hidden]{display:none}
+.bk-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 14px;margin:6px 0 10px;background:var(--h50);border:1px solid var(--garis);border-radius:var(--r)}
+.bk-info{font-size:.95rem;color:var(--tinta2)}
+.cek-kol{width:34px;padding-right:0!important}
+.cek-kol input,.cek-baris input{width:18px;height:18px;accent-color:var(--h700)}
+.cek-baris{display:flex;gap:10px;align-items:flex-start;margin-top:12px;line-height:1.45}
+.cek-baris input{margin-top:2px;flex:none}
+.aksi-baris{display:flex;gap:10px;align-items:center}
+.wa-grup{display:inline-flex;gap:6px}
+.wa{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border:1px solid #1f8a4c;border-radius:999px;color:#146c3a;background:#eaf7ef;font-size:.82rem;font-weight:600;text-decoration:none;min-height:28px}
+.wa:hover{background:#d7f0e0}
+.wa.mati{border-color:var(--garis);color:var(--tinta3,#7a8580);background:transparent;font-weight:500;cursor:default}
+.pm-tiles{display:flex;flex-wrap:wrap;border-top:2px solid var(--h900);margin:0 0 18px}
+.pm-tiles button{flex:1 1 150px;text-align:left;padding:12px 16px 10px;background:none;border:0;border-left:1px solid var(--garis);cursor:pointer;font:inherit;color:var(--tinta)}
+.pm-tiles button:first-child{border-left:0;padding-left:0}
+.pm-tiles b{display:block;font:700 1.7rem/1.1 var(--judul);color:var(--h900);font-variant-numeric:tabular-nums}
+.pm-tiles span{font-size:.88rem;color:var(--tinta2)}
+.pm-tiles button[aria-pressed=true]{background:var(--h50);box-shadow:inset 0 -3px 0 var(--emas)}
+.pm-hist{margin:0 0 18px}
+.pm-hist summary{cursor:pointer;font-weight:700;color:var(--h900);padding:6px 0}
+.pm-bars{display:grid;gap:4px;margin-top:8px;max-width:640px}
+.pm-bar{display:grid;grid-template-columns:84px minmax(0,1fr) 44px;align-items:center;gap:10px;background:none;border:0;padding:3px 6px;font:inherit;color:var(--tinta);cursor:pointer;border-radius:6px;text-align:left}
+.pm-bar:hover,.pm-bar[aria-pressed=true]{background:var(--h50)}
+.pm-bt{height:14px;background:var(--garis2);border-radius:3px;overflow:hidden}
+.pm-bt i{display:block;height:100%;background:var(--h600);border-radius:3px}
+.pm-bn{text-align:right;font-variant-numeric:tabular-nums;color:var(--tinta2)}
+.paginasi{display:flex;align-items:center;justify-content:center;gap:14px;padding:16px 0}
+@media (max-width:760px){.pm-filter{grid-template-columns:1fr 1fr!important}.pm-tiles button{flex-basis:45%}.bk-bar{position:sticky;bottom:8px;z-index:5;box-shadow:0 4px 16px rgba(0,0,0,.14)}}
+.tbl .chip{white-space:nowrap;overflow-wrap:normal}
+.tbl td a[href^="#/pesantren/"]{min-width:200px;display:inline-block}
+.tbl .potong{min-width:150px}
+input[type=month]{min-height:44px;padding:8px 10px;border:1px solid var(--garis);border-radius:var(--r);font:inherit;background:var(--putih);width:100%}
+@media print{.bk-bar,.wa-grup{display:none!important}}
+
 /* ====================== GERAK & TRANSISI (lembut, singkat) ====================== */
 :root{--ease:cubic-bezier(.2,.7,.2,1);--ease-keluar:cubic-bezier(.4,0,1,1)}
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
@@ -857,6 +893,39 @@ const PROV_SINGKAT = {
   'DI Yogyakarta': 'DI Yogyakarta', 'Kepulauan Riau': 'Kepulauan Riau', 'Papua Pegunungan': 'Papua Pegunungan', 'Papua Barat Daya': 'Papua Barat Daya'
 };
 const ROLE_LABEL = { superadmin: 'Super admin', operator: 'Operator pusat', operator_wilayah: 'Operator wilayah', operator_daerah: 'Operator daerah', admin_pondok: 'Admin pondok', viewer: 'Viewer' };
+/* ---- WhatsApp: ambil nomor HP seluler pertama dari teks bebas (mis. "Nama : 0821-9394-6173") ---- */
+function nomorWa(teks) {
+  const cocok = String(teks || '').match(/(?:\+?62|0)\s*8[\d\s().-]{7,16}/g) || [];
+  for (const x of cocok) {
+    let d = x.replace(/\D/g, '');
+    if (d.startsWith('62')) d = d.slice(2); else if (d.startsWith('0')) d = d.slice(1);
+    if (/^8\d{8,12}$/.test(d)) return '62' + d;
+  }
+  return '';
+}
+const BLN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const BLN_P = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const tglObj = t => { const m = String(t || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
+const tglPendek = d => d ? d.getDate() + ' ' + BLN_P[d.getMonth()] + ' ' + d.getFullYear() : '';
+function pesanWa(o, tglTerakhir) {
+  const url = location.origin + location.pathname;
+  const kurang = (o.kurang || []).slice(0, 6);
+  let isi = 'Assalamualaikum warahmatullahi wabarakatuh.\n\nBapak/Ibu, kami dari LP2 PPM. Kami menghubungi terkait data *' + o.nama + '* di ' + judulSitus() + '.\n\n';
+  if (kurang.length) isi += 'Setelah kami periksa, beberapa isian pokok masih kosong: ' + kurang.join(', ') + (o.kurang.length > kurang.length ? ', dan lainnya' : '') + '.\n';
+  if (tglTerakhir) isi += 'Data terakhir diperbarui pada ' + tglTerakhir + '.\n';
+  isi += 'Mohon data dilengkapi atau diperbarui bila ada perubahan melalui ' + url + ' (Masuk sebagai admin pesantren).\n\nJika ada kendala, silakan balas pesan ini. Jazakumullah khairan.';
+  return isi;
+}
+const IKON_WA = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.7-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>';
+function kontakWa(o, tglTerakhir) {
+  const pesan = pesanWa(o, tglTerakhir);
+  const satu = (peran, teks, namaPeran) => {
+    const no = nomorWa(teks);
+    return no ? `<a class="wa" href="https://wa.me/${no}?text=${encodeURIComponent(pesan)}" target="_blank" rel="noopener noreferrer" aria-label="Hubungi ${namaPeran} ${esc(o.nama)} lewat WhatsApp" title="Kirim pesan WhatsApp ke ${namaPeran} (+${no})">${IKON_WA}${peran}</a>` : `<span class="wa mati" title="Nomor ${namaPeran} belum ada di sistem">${peran}</span>`;
+  };
+  return `<span class="wa-grup">${satu('Mudir', o.mudir_hp, 'mudir')}${satu('Admin', o.admin_pesantren, 'admin pesantren')}</span>`;
+}
+
 const VERIF = {
   belum_verifikasi: { t: 'Belum diverifikasi', c: 'abu' },
   diajukan: { t: 'Menunggu verifikasi', c: 'emas' },
@@ -967,8 +1036,8 @@ const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfi
    Hasil baca dari server disimpan di localStorage, dikunci per pengguna + aksi + parameter.
    Setiap aksi tulis menghapus seluruh cache; tombol "Perbarui data" juga menghapusnya. */
 const CACHE_TTL = 5 * 60 * 1000, CACHE_PRE = 'lp2pp.c.', CACHE_MAKS = 400000;
-const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan']);
-const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'simpanIsian', 'tambahIsian', 'buatUndangan', 'putuskanUndangan', 'changePassword']);
+const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan', 'rekapPembaruan']);
+const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'simpanIsian', 'tambahIsian', 'buatUndangan', 'putuskanUndangan', 'changePassword', 'verifyBulk']);
 const cacheMem = {}, cacheJalan = {};
 function cacheKey(action, params) {
   const j = JSON.stringify(params || {}); let h = 5381; for (let i = 0; i < j.length; i++) h = ((h << 5) + h + j.charCodeAt(i)) | 0;
@@ -1159,6 +1228,7 @@ const ROUTES = [
   [/^\/direktori$/, pageDirektori],
   [/^\/pesantren\/(PSN-\d+)$/, pageProfil],
   [/^\/ubah\/(PSN-\d+)$/, pageUbah],
+  [/^\/panel\/pembaruan$/, pagePembaruan],
   [/^\/masuk$/, pageMasuk],
   [/^\/token$/, pageToken],
   [/^\/ganti-password$/, pageGantiPassword],
@@ -2331,7 +2401,7 @@ async function siapkanBerkas(file) {
    PANEL OPERATOR
    ==================================================================== */
 function tabPanel(aktif) {
-  const t = [['/panel', 'Daftar pesantren'], ['/panel/tambah', 'Tambah pesantren'], ['/panel/pengguna', 'Pengguna'], ['/panel/review', 'Tinjau data lama'], ['/panel/log', 'Riwayat perubahan']];
+  const t = [['/panel', 'Daftar pesantren'], ['/panel/tambah', 'Tambah pesantren'], ['/panel/pembaruan', 'Pemantauan data'], ['/panel/pengguna', 'Pengguna'], ['/panel/review', 'Tinjau data lama'], ['/panel/log', 'Riwayat perubahan']];
   if (S.user && S.user.role === 'superadmin') { t.push(['/panel/isian', 'Kelola isian']); t.push(['/panel/pengaturan', 'Pengaturan situs']); }
   return `<nav class="tab-panel" aria-label="Menu panel">${t.map(([p, n]) => `<a href="#${p}" ${p === aktif ? 'aria-current="page"' : ''}>${n}</a>`).join('')}</nav>`;
 }
@@ -2374,11 +2444,70 @@ async function pagePanel({ el, q, ok }) {
       <button class="btn" type="submit">Terapkan</button>
     </form>
     <div class="hasil-info"><span><b>${ang(data.total)}</b> pesantren</span><span>Halaman ${data.halaman} dari ${data.jumlah_halaman}</span></div>
-    ${data.total === 0 ? '<div class="kosong-hal"><p>Tidak ada pesantren yang cocok dengan filter ini.</p></div>' : `<div class="tabel-bungkus"><table class="tbl"><thead><tr><th>ID</th><th>Nama</th><th>Wilayah</th><th>NSP</th><th>NRPM</th><th class="num">Santri</th><th>Isian</th><th>Verifikasi</th><th></th></tr></thead><tbody>
-    ${data.item.map(o => { const v = VERIF[o.status_verifikasi] || VERIF.belum_verifikasi; return `<tr><td class="nowrap">${esc(o.id)}</td><td class="potong"><a href="#/pesantren/${esc(o.id)}">${esc(o.nama)}</a></td><td class="potong">${esc([o.kab_kota, o.provinsi].filter(Boolean).join(', '))}</td><td class="nowrap">${esc(o.nsp) || '<span class="muted">—</span>'}</td><td class="nowrap">${esc(o.nrpm) || '<span class="muted">—</span>'}</td><td class="num">${o.santri_total === '' ? '—' : ang(o.santri_total)}</td><td><span class="chip ${o.status_data === 'lengkap' ? '' : 'emas'}">${o.status_data === 'lengkap' ? 'Lengkap' : 'Belum lengkap'}</span></td><td><span class="chip ${v.c}">${esc(v.t)}</span></td><td class="nowrap"><a href="#/ubah/${esc(o.id)}">Ubah</a></td></tr>`; }).join('')}
+    ${data.total === 0 ? '<div class="kosong-hal"><p>Tidak ada pesantren yang cocok dengan filter ini.</p></div>' : `<div class="bk-bar noprint" id="bk-bar" role="region" aria-label="Verifikasi massal">
+      <div class="bk-info"><b id="bk-n">0</b> dipilih<button type="button" class="tautan" id="bk-semua" ${data.id_semua.length && data.id_semua.length > data.item.length && data.id_semua.length <= 500 ? '' : 'hidden'}>Pilih semua ${ang(data.id_semua.length)} hasil</button><button type="button" class="tautan" id="bk-hapus" hidden>Kosongkan pilihan</button></div>
+      <button class="btn kecil" type="button" id="bk-verif" disabled>Verifikasi terpilih…</button></div>
+    <div class="tabel-bungkus"><table class="tbl"><thead><tr><th class="cek-kol"><input type="checkbox" id="bk-hal" aria-label="Pilih semua pesantren di halaman ini"></th><th>ID</th><th>Nama</th><th>Wilayah</th><th>NSP</th><th class="num">Santri</th><th>Isian</th><th>Verifikasi</th><th>Diperbarui</th><th>Hubungi</th><th></th></tr></thead><tbody>
+    ${data.item.map(o => { const v = VERIF[o.status_verifikasi] || VERIF.belum_verifikasi; const tg = tglObj(o.diubah_pada); return `<tr><td class="cek-kol"><input type="checkbox" data-pilih="${esc(o.id)}" aria-label="Pilih ${esc(o.nama)}"></td><td class="nowrap">${esc(o.id)}</td><td class="potong"><a href="#/pesantren/${esc(o.id)}">${esc(o.nama)}</a></td><td class="potong">${esc([o.kab_kota, o.provinsi].filter(Boolean).join(', '))}</td><td class="nowrap">${esc(o.nsp) || '<span class="muted">—</span>'}</td><td class="num">${o.santri_total === '' ? '—' : ang(o.santri_total)}</td><td><span class="chip ${o.status_data === 'lengkap' ? '' : 'emas'}">${o.status_data === 'lengkap' ? 'Lengkap' : 'Belum lengkap'}</span></td><td><span class="chip ${v.c}">${esc(v.t)}</span></td><td class="nowrap">${tg ? esc(tglPendek(tg)) : '<span class="muted" title="Belum pernah diubah sejak data dimigrasi">—</span>'}</td><td class="nowrap">${kontakWa(o, tg ? tglPendek(tg) : '')}</td><td class="nowrap aksi-baris"><a href="#/ubah/${esc(o.id)}">Ubah</a>${o.status_verifikasi === 'terverifikasi' ? '' : ` <button class="btn sek kecil" type="button" data-verif="${esc(o.id)}" data-nama="${esc(o.nama)}">Verifikasi</button>`}</td></tr>`; }).join('')}
     </tbody></table></div>${paginasi('/panel', { q: q.q, provinsi: q.provinsi, status_verifikasi: q.status_verifikasi, status_data: q.status_data }, data.halaman, data.jumlah_halaman)}`}
   </div>`;
   $('#form-pf').onsubmit = e => { e.preventDefault(); go('/panel' + qs({ q: $('#p-q').value.trim(), provinsi: $('#p-prov').value, status_verifikasi: $('#p-sv').value, status_data: $('#p-sd').value })); };
+  pasangVerifikasi(el, data);
+}
+
+/* Verifikasi per pesantren (konfirmasi saja) dan verifikasi massal (pernyataan + password) di daftar panel. */
+function pasangVerifikasi(el, data) {
+  const pilih = new Set();
+  const semuaBox = () => $$('[data-pilih]', el);
+  const segar = () => {
+    const n = pilih.size, bar = $('#bk-bar'); if (!bar) return;
+    $('#bk-n').textContent = ang(n); $('#bk-verif').disabled = n === 0; $('#bk-hapus').hidden = n === 0;
+    const hal = $('#bk-hal'), bx = semuaBox(); hal.checked = bx.length > 0 && bx.every(b => b.checked);
+    hal.indeterminate = !hal.checked && bx.some(b => b.checked);
+  };
+  el.onchange = e => {
+    const c = e.target.closest('[data-pilih]');
+    if (c) { c.checked ? pilih.add(c.dataset.pilih) : pilih.delete(c.dataset.pilih); segar(); return; }
+    if (e.target.id === 'bk-hal') { semuaBox().forEach(b => { b.checked = e.target.checked; e.target.checked ? pilih.add(b.dataset.pilih) : pilih.delete(b.dataset.pilih); }); segar(); }
+  };
+  el.onclick = async e => {
+    const t = e.target.closest('button'); if (!t) return;
+    if (t.id === 'bk-semua') { data.id_semua.forEach(i => pilih.add(i)); semuaBox().forEach(b => { b.checked = true; }); segar(); toast(ang(pilih.size) + ' pesantren dipilih (semua halaman).'); return; }
+    if (t.id === 'bk-hapus') { pilih.clear(); semuaBox().forEach(b => { b.checked = false; }); segar(); return; }
+    if (t.id === 'bk-verif') { verifMassal(Array.from(pilih), data); return; }
+    if (t.dataset.verif) {
+      if (!await konfirmasi('Verifikasi data pesantren ini?', 'Apakah Anda sudah memeriksa kelengkapan data ' + t.dataset.nama + '? Lanjutkan verifikasi bila sudah.', 'Ya, verifikasi')) return;
+      t.disabled = true;
+      try { const r = await api('verify', { id: t.dataset.verif, status: 'terverifikasi' }); toast(r.pesan); render(); }
+      catch (x) { if (!x.ditangani) toast(x.message, 'galat'); t.disabled = false; }
+    }
+  };
+  segar();
+}
+function verifMassal(ids, data) {
+  const belum = new Set(data.id_belum_lengkap || []);
+  const nBelum = ids.filter(i => belum.has(i)).length;
+  const d = modal(`<div class="dlg-isi"><h2>Verifikasi massal</h2>
+    <p><b>${ang(ids.length)} pesantren</b> akan diubah statusnya menjadi <b>Terverifikasi</b>.</p>
+    ${nBelum ? `<div class="peringatan" style="margin:10px 0"><b>${ang(nBelum)}</b> di antaranya isian pokoknya masih belum lengkap.</div>` : ''}
+    <label class="cek-baris"><input type="checkbox" id="bk-nyata"><span>Saya menyatakan sudah memeriksa kelengkapan data semua pesantren yang dipilih.</span></label>
+    <div class="fl" style="margin-top:12px"><label for="bk-pw">Masukkan password Anda untuk melanjutkan</label><input id="bk-pw" type="password" autocomplete="current-password"></div>
+    <div id="bk-err" class="galat" role="alert" style="display:none;margin:12px 0 0"></div></div>
+    <div class="dlg-aksi"><button class="btn sek" type="button" data-x="0">Batal</button><button class="btn" type="button" id="bk-ya" disabled>Verifikasi ${ang(ids.length)} pesantren</button></div>`);
+  const ya = $('#bk-ya', d), cek = () => { ya.disabled = !($('#bk-nyata', d).checked && $('#bk-pw', d).value.length > 0); };
+  $('#bk-nyata', d).onchange = cek; $('#bk-pw', d).oninput = cek;
+  d.addEventListener('click', e => { const b = e.target.closest('[data-x]'); if (b) d.close(); });
+  ya.onclick = async () => {
+    const er = $('#bk-err', d); er.style.display = 'none'; ya.disabled = true; ya.textContent = 'Memproses…';
+    try {
+      const r = await api('verifyBulk', { ids, password: $('#bk-pw', d).value, pernyataan: true, status: 'terverifikasi' });
+      d.close();
+      const lewat = (r.di_luar_cakupan || 0) + (r.tidak_ditemukan || 0);
+      toast(r.diverifikasi + ' pesantren diverifikasi' + (r.sudah ? ', ' + r.sudah + ' sudah terverifikasi' : '') + (lewat ? ', ' + lewat + ' dilewati' : '') + '.');
+      render();
+    } catch (x) { if (!x.ditangani) { er.textContent = x.message; er.style.display = 'block'; } ya.textContent = 'Verifikasi ' + ang(ids.length) + ' pesantren'; cek(); $('#bk-pw', d).select(); }
+  };
+  $('#bk-pw', d).focus();
 }
 
 /* --- autocomplete pesantren --- */
@@ -2654,6 +2783,88 @@ async function pageReview({ el, q, ok }) {
     try { await api('reviewMark', { baris: +b.dataset.b, id_pesantren: b.dataset.i, kolom: b.dataset.k, status_tindak: b.dataset.rv }); toast('Status diperbarui.'); render(); }
     catch (x) { toast(x.message, 'galat'); b.disabled = false; if (x.code === 409) render(); }
   });
+}
+
+/* ====================================================================
+   PANEL: PEMANTAUAN DATA (kapan data terakhir diperbarui)
+   ==================================================================== */
+async function pagePembaruan({ el, ok }) {
+  if (!perluStaf(el)) return;
+  document.title = 'Pemantauan data — Panel';
+  el.innerHTML = muat();
+  const d = await api('rekapPembaruan');
+  if (!ok()) return;
+  const skr = tglObj(d.sekarang) || new Date();
+  const selisihBulan = t => { let m = (skr.getFullYear() - t.getFullYear()) * 12 + skr.getMonth() - t.getMonth(); if (skr.getDate() < t.getDate()) m--; return Math.max(m, 0); };
+  const rows = d.item.map(o => {
+    const pernah = !!o.diubah_pada, tg = tglObj(o.diubah_pada) || tglObj(o.dibuat_pada);
+    return Object.assign({}, o, { pernah, tg, umur: tg ? selisihBulan(tg) : 0, bln: tg ? tg.getFullYear() + '-' + String(tg.getMonth() + 1).padStart(2, '0') : '' });
+  });
+  const BK = [
+    ['b3', 'Diperbarui kurang dari 3 bulan lalu', o => o.pernah && o.umur < 3],
+    ['b6', '3 sampai 6 bulan lalu', o => o.pernah && o.umur >= 3 && o.umur < 6],
+    ['b12', '6 sampai 12 bulan lalu', o => o.pernah && o.umur >= 6 && o.umur < 12],
+    ['b12p', 'Lebih dari 12 bulan lalu', o => o.pernah && o.umur >= 12],
+    ['mig', 'Belum pernah diperbarui sejak migrasi', o => !o.pernah]
+  ];
+  const cacah = k => rows.filter(BK.find(b => b[0] === k)[2]).length;
+  const provList = [...new Set(rows.map(o => o.provinsi).filter(Boolean))].sort();
+  const bulanCacah = {}; rows.forEach(o => { if (o.bln) bulanCacah[o.bln] = (bulanCacah[o.bln] || 0) + 1; });
+  const bulanUrut = Object.keys(bulanCacah).sort();
+  const maks = Math.max(1, ...Object.values(bulanCacah));
+  const namaBln = k => { const [y, m] = k.split('-'); return BLN_P[+m - 1] + ' ' + y; };
+  const F = { q: '', prov: '', bk: '', oleh: '', bulan: '', sejak: '', urut: 'lama', hal: 1 };
+  const PER = 30;
+  const olehTeks = o => !o.pernah ? 'Data migrasi' : o.oleh_peran === 'admin_pondok' ? 'Admin pondok' : (o.oleh_peran ? 'Operator' : 'Data migrasi');
+  const umurTeks = o => !o.tg ? '' : o.umur < 1 ? 'bulan ini' : o.umur < 12 ? o.umur + ' bulan lalu' : (Math.floor(o.umur / 12) + ' tahun' + (o.umur % 12 ? ' ' + (o.umur % 12) + ' bulan' : '') + ' lalu');
+
+  el.innerHTML = `<div class="wrap"><div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Pemantauan data</h1></div>${tabPanel('/panel/pembaruan')}
+    <p class="muted" style="max-width:72ch;margin:0 0 16px">Lihat kapan data tiap pesantren terakhir diperbarui untuk menemukan data yang mungkin sudah usang. Perubahan status verifikasi tidak dihitung sebagai pembaruan data. Pesantren yang belum pernah diubah sejak data dipindahkan ke aplikasi dikelompokkan terpisah.</p>
+    <div class="pm-tiles" role="group" aria-label="Kelompok usia data">${BK.map(b => `<button type="button" data-bk="${b[0]}" aria-pressed="false"><b>${ang(cacah(b[0]))}</b><span>${esc(b[1])}</span></button>`).join('')}</div>
+    <details class="pm-hist" open><summary>Sebaran menurut bulan terakhir diperbarui</summary><div class="pm-bars" role="list">${bulanUrut.map(k => `<button type="button" role="listitem" class="pm-bar" data-bulan="${k}" aria-pressed="false" aria-label="${esc(namaBln(k))}: ${bulanCacah[k]} pesantren"><span class="pm-bl">${esc(namaBln(k))}</span><span class="pm-bt"><i style="width:${Math.max(2, Math.round(bulanCacah[k] / maks * 100))}%"></i></span><span class="pm-bn">${ang(bulanCacah[k])}</span></button>`).join('') || '<p class="muted">Belum ada data.</p>'}</div></details>
+    <div class="filter pm-filter" id="pm-f" style="grid-template-columns:minmax(0,1.5fr) repeat(4,minmax(0,1fr))">
+      <div class="fl"><label for="pm-q">Cari nama atau ID</label><input id="pm-q" type="search"></div>
+      <div class="fl"><label for="pm-prov">Provinsi</label><select id="pm-prov"><option value="">Semua</option>${provList.map(x => `<option>${esc(x)}</option>`).join('')}</select></div>
+      <div class="fl"><label for="pm-oleh">Terakhir diubah oleh</label><select id="pm-oleh"><option value="">Semua</option><option value="admin_pondok">Admin pondok</option><option value="operator">Operator</option><option value="migrasi">Data migrasi</option></select></div>
+      <div class="fl"><label for="pm-sejak">Tidak diperbarui sejak</label><input id="pm-sejak" type="month"></div>
+      <div class="fl"><label for="pm-urut">Urutan</label><select id="pm-urut"><option value="lama">Paling lama dulu</option><option value="baru">Paling baru dulu</option><option value="nama">Nama</option></select></div>
+    </div>
+    <div id="pm-hasil" aria-live="polite"></div></div>`;
+
+  const saring = () => {
+    let r = rows.slice();
+    const q = F.q.trim().toLowerCase();
+    if (q) r = r.filter(o => (o.id + ' ' + o.nama).toLowerCase().includes(q));
+    if (F.prov) r = r.filter(o => o.provinsi === F.prov);
+    if (F.bk) r = r.filter(BK.find(b => b[0] === F.bk)[2]);
+    if (F.bulan) r = r.filter(o => o.bln === F.bulan);
+    if (F.oleh) r = r.filter(o => F.oleh === 'migrasi' ? !o.pernah : (o.pernah && (F.oleh === 'admin_pondok' ? o.oleh_peran === 'admin_pondok' : o.oleh_peran !== 'admin_pondok')));
+    if (F.sejak) { const [y, m] = F.sejak.split('-'); const batas = new Date(+y, +m - 1, 1); r = r.filter(o => o.tg && o.tg < batas); }
+    const t = o => o.tg ? o.tg.getTime() : 0;
+    r.sort((a, b) => F.urut === 'nama' ? a.nama.localeCompare(b.nama, 'id') : F.urut === 'baru' ? t(b) - t(a) || a.nama.localeCompare(b.nama, 'id') : t(a) - t(b) || a.nama.localeCompare(b.nama, 'id'));
+    return r;
+  };
+  const gambar = () => {
+    const r = saring(), hal = Math.min(Math.max(F.hal, 1), Math.max(Math.ceil(r.length / PER), 1)); F.hal = hal;
+    $$('[data-bk]', el).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.bk === F.bk)));
+    $$('[data-bulan]', el).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.bulan === F.bulan)));
+    const aktif = [F.bk && BK.find(b => b[0] === F.bk)[1], F.bulan && 'Bulan ' + namaBln(F.bulan)].filter(Boolean);
+    const hal_n = Math.max(Math.ceil(r.length / PER), 1);
+    $('#pm-hasil').innerHTML = `<div class="hasil-info"><span><b>${ang(r.length)}</b> pesantren${aktif.length ? ' · ' + aktif.map(esc).join(', ') + ' <button type="button" class="tautan" id="pm-reset">hapus pilihan</button>' : ''}</span><span>Halaman ${hal} dari ${hal_n}</span></div>
+    ${r.length === 0 ? '<div class="kosong-hal"><p>Tidak ada pesantren yang cocok dengan filter ini.</p></div>' : `<div class="tabel-bungkus"><table class="tbl"><thead><tr><th>Pesantren</th><th>Wilayah</th><th>Terakhir diperbarui</th><th>Oleh</th><th>Verifikasi</th><th>Hubungi</th><th></th></tr></thead><tbody>
+    ${r.slice((hal - 1) * PER, hal * PER).map(o => { const v = VERIF[o.status_verifikasi] || VERIF.belum_verifikasi; return `<tr><td class="potong"><a href="#/pesantren/${esc(o.id)}">${esc(o.nama)}</a><div class="muted kecil">${esc(o.id)}</div></td><td class="potong">${esc([o.kab_kota, o.provinsi].filter(Boolean).join(', '))}</td><td class="nowrap">${o.tg ? `<b>${esc(tglPendek(o.tg))}</b><div class="muted kecil">${o.pernah ? esc(umurTeks(o)) : 'data migrasi, belum pernah diubah'}</div>` : '<span class="muted">—</span>'}</td><td class="nowrap"><span class="chip ${o.pernah ? (o.oleh_peran === 'admin_pondok' ? '' : 'biru') : 'abu'}">${esc(olehTeks(o))}</span></td><td><span class="chip ${v.c}">${esc(v.t)}</span></td><td class="nowrap">${kontakWa(o, o.pernah ? tglPendek(o.tg) : '')}</td><td class="nowrap"><a href="#/ubah/${esc(o.id)}">Ubah</a></td></tr>`; }).join('')}
+    </tbody></table></div>${hal_n > 1 ? `<nav class="paginasi" aria-label="Halaman"><button type="button" class="btn sek kecil" data-hal="${hal - 1}" ${hal <= 1 ? 'disabled' : ''}>Sebelumnya</button><span class="muted">Halaman ${hal} dari ${hal_n}</span><button type="button" class="btn sek kecil" data-hal="${hal + 1}" ${hal >= hal_n ? 'disabled' : ''}>Berikutnya</button></nav>` : ''}`}`;
+  };
+  el.onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.bk !== undefined) { F.bk = F.bk === b.dataset.bk ? '' : b.dataset.bk; F.hal = 1; gambar(); }
+    else if (b.dataset.bulan !== undefined) { F.bulan = F.bulan === b.dataset.bulan ? '' : b.dataset.bulan; F.hal = 1; gambar(); }
+    else if (b.id === 'pm-reset') { F.bk = ''; F.bulan = ''; F.hal = 1; gambar(); }
+    else if (b.dataset.hal) { F.hal = +b.dataset.hal; gambar(); $('#pm-f').scrollIntoView({ block: 'start' }); }
+  };
+  const pasang = (id, k, tunda) => { const f = () => { F[k] = $(id).value; F.hal = 1; gambar(); }; $(id).oninput = tunda ? debounce(f, 200) : f; $(id).onchange = f; };
+  pasang('#pm-q', 'q', true); pasang('#pm-prov', 'prov'); pasang('#pm-oleh', 'oleh'); pasang('#pm-sejak', 'sejak'); pasang('#pm-urut', 'urut');
+  gambar();
 }
 
 /* ====================================================================
