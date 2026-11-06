@@ -725,6 +725,23 @@ footer a{color:#fff}
 @media (max-width:640px){.isian-utama{grid-template-columns:1fr}.isian-rinci{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.isian-rinci:not([hidden]){animation:munculTurun .2s var(--ease) both}}
 
+/* MODE PEMELIHARAAN */
+.pml{padding-top:clamp(28px,8vh,90px);padding-bottom:clamp(28px,8vh,90px)}
+.pml-kartu{max-width:640px;margin:0 auto;text-align:center}
+.pml-ikon{width:56px;height:56px;color:var(--h700);margin-bottom:10px}
+.pml-kartu h1{font-size:clamp(1.7rem,4vw,2.5rem);margin:0 0 12px}
+.pml-pesan{font-size:1.08rem;line-height:1.6;margin:0 auto 12px;max-width:52ch}
+.pml-perkiraan{margin:0 0 20px;padding:10px 16px;display:inline-block;background:var(--h50);border-left:4px solid var(--emas);border-radius:var(--r);text-align:left}
+.pml-aksi{margin:6px 0 18px}
+.pml-bar{background:#7a2e0e;color:#fff}
+.pml-bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pml-status{display:inline-block;padding:8px 14px;margin:0 0 16px;border:1px solid var(--garis);border-radius:var(--r);background:var(--h50)}
+.pml-status.aktif{background:#fdeee6;border-color:#d9895f;color:#7a2e0e}
+.pml-form{max-width:640px}
+.pml-form .fl{margin-bottom:14px}
+.pml-form textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--garis);border-radius:var(--r);background:var(--putih);resize:vertical}
+.pml-pratinjau{border:1px dashed var(--garis);border-radius:var(--r3);background:var(--putih);pointer-events:none}
+.pml-pratinjau .pml{padding-top:28px;padding-bottom:28px}
 /* PETA TITIK PONDOK */
 .pt-bar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:0 0 14px}
 .pt-bar .fl{min-width:min(260px,100%)}
@@ -890,6 +907,7 @@ function logoGagal(img){const n=+(img.dataset.n||0);if(/warna\.png/.test(img.src
 <main id="utama" tabindex="-1" aria-live="polite"></main>
 <footer id="foot"></footer>
 <div id="pratinjau-bar" class="pratinjau-bar" hidden></div>
+<div id="pml-bar" class="pratinjau-bar pml-bar" hidden></div>
 <div id="bar-muat" aria-hidden="true"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <button type="button" id="gulir" aria-label="Gulir ke bawah" title="Gulir ke bawah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
@@ -1079,13 +1097,13 @@ function keluar(pesan) {
   go('/');
   renderNav();
 }
-const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'petaTitik']);
+const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'petaTitik', 'pemeliharaan']);
 /* ---- cache data di browser (5 menit) ----
    Hasil baca dari server disimpan di localStorage, dikunci per pengguna + aksi + parameter.
    Setiap aksi tulis menghapus seluruh cache; tombol "Perbarui data" juga menghapusnya. */
 const CACHE_TTL = 5 * 60 * 1000, CACHE_PRE = 'lp2pp.c.', CACHE_MAKS = 400000;
 const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan', 'rekapPembaruan', 'petaTitik']);
-const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'simpanIsian', 'tambahIsian', 'buatUndangan', 'putuskanUndangan', 'changePassword', 'verifyBulk', 'petaSet', 'petaProses']);
+const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'simpanIsian', 'tambahIsian', 'buatUndangan', 'putuskanUndangan', 'changePassword', 'verifyBulk', 'petaSet', 'petaProses', 'setPemeliharaan']);
 const cacheMem = {}, cacheJalan = {};
 function cacheKey(action, params) {
   const j = JSON.stringify(params || {}); let h = 5381; for (let i = 0; i < j.length; i++) h = ((h << 5) + h + j.charCodeAt(i)) | 0;
@@ -1146,10 +1164,52 @@ async function apiJaringan(action, params) {
     const er = new Error(j.error || 'Terjadi kesalahan.'); er.code = j.code; er.kode = j.kode;
     if (j.code === 401 && S.token && j.kode === 'SESI') { keluar('Sesi berakhir. Silakan masuk kembali.'); er.ditangani = true; }
     if (j.kode === 'GANTI_PASSWORD') { go('/ganti-password'); er.ditangani = true; }
+    if (j.kode === 'PEMELIHARAAN' && action !== 'login') { er.ditangani = true; er.pemeliharaan = true; if (!(S.pml && S.pml.aktif)) { S.pml = { aktif: true, pesan: j.error || '', perkiraan: '', sejak: '' }; setTimeout(() => { renderNav(); render(); cekPemeliharaan(); }, 0); } }
     throw er;
   }
   return j.data;
 }
+/* ====================================================================
+   MODE PEMELIHARAAN
+   ==================================================================== */
+const pmlBerlaku = () => !!(S.pml && S.pml.aktif && !(S.user && S.user.role === 'superadmin'));
+function halamanPemeliharaan(info, pratinjau) {
+  info = info || {};
+  return `<div class="wrap pml"><div class="pml-kartu" role="status">
+    <svg class="pml-ikon" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.9 1.9 0 0 0 2.7 2.7l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.2-.5-.5-2.2z"/></svg>
+    <h1>Sedang dalam pemeliharaan</h1>
+    <p class="pml-pesan">${esc(info.pesan || 'Sistem sedang diperbarui oleh tim pengembang. Data Anda aman. Silakan kembali beberapa saat lagi.')}</p>
+    ${info.perkiraan ? `<p class="pml-perkiraan"><b>Perkiraan selesai:</b> ${esc(info.perkiraan)}</p>` : ''}
+    ${pratinjau ? '' : `<div class="pml-aksi"><button class="btn" type="button" id="pml-muat">Muat ulang</button></div><p class="kecil muted">Pengelola sistem? <a href="#/masuk">Masuk di sini</a></p>`}
+  </div></div>`;
+}
+function barPml() {
+  const b = $('#pml-bar'); if (!b) return;
+  const tampil = !!(S.pml && S.pml.aktif && S.user && S.user.role === 'superadmin');
+  b.hidden = !tampil;
+  if (tampil) b.innerHTML = '<div class="wrap"><span><b>Mode pemeliharaan sedang aktif.</b> Pengunjung dan pengguna lain tidak bisa mengakses sistem. Hanya Anda yang bisa.</span><a class="btn sek kecil" href="#/panel/pemeliharaan">Kelola</a></div>';
+}
+let pmlSebelum = '';
+async function cekPemeliharaan(paksa) {
+  try {
+    const d = await apiJaringan('pemeliharaan');
+    const kunci = JSON.stringify([!!d.aktif, d.pesan, d.perkiraan]), aktifSebelum = !!(S.pml && S.pml.aktif);
+    S.pml = d;
+    barPml();
+    const berubah = !!d.aktif !== aktifSebelum || (d.aktif && kunci !== pmlSebelum);
+    pmlSebelum = kunci;
+    if (berubah || paksa) { renderNav(); render(); }
+    return d;
+  } catch (e) { return null; }
+}
+document.addEventListener('click', async e => {
+  if (!e.target.closest('#pml-muat')) return;
+  const b = e.target.closest('#pml-muat'); b.disabled = true; b.textContent = 'Memeriksa…';
+  const d = await cekPemeliharaan(true);
+  if (d && d.aktif) { const b2 = $('#pml-muat'); if (b2) { b2.disabled = false; b2.textContent = 'Muat ulang'; } toast('Masih dalam pemeliharaan. Coba lagi beberapa saat.'); }
+});
+setInterval(() => { if (!document.hidden) cekPemeliharaan(); }, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) cekPemeliharaan(); });
 const isStaff = () => S.user && ['superadmin', 'operator', 'operator_wilayah', 'operator_daerah'].includes(S.user.role);
 
 async function pubMeta() {
@@ -1279,6 +1339,7 @@ const ROUTES = [
   [/^\/ubah\/(PSN-\d+)$/, pageUbah],
   [/^\/panel\/pembaruan$/, pagePembaruan],
   [/^\/panel\/peta$/, pagePanelPeta],
+  [/^\/panel\/pemeliharaan$/, pagePemeliharaan],
   [/^\/masuk$/, pageMasuk],
   [/^\/token$/, pageToken],
   [/^\/ganti-password$/, pageGantiPassword],
@@ -1313,6 +1374,7 @@ async function render() {
   const q = Object.fromEntries(new URLSearchParams(query || ''));
   const el = $('#utama');
   renderNav(path);
+  if (pmlBerlaku() && path !== '/masuk') { document.title = 'Sedang dalam pemeliharaan — ' + judulSitus(); document.body.classList.remove('boleh-cetak'); el.innerHTML = halamanPemeliharaan(S.pml); gerakMasuk(el); barSelesai(); return; }
   let handler = null, m = null;
   for (const [re, fn] of ROUTES) { m = path.match(re); if (m) { handler = fn; break; } }
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -1352,7 +1414,9 @@ function renderNav(path) {
   } else h += `<a class="masuk" href="#/masuk">Masuk</a>`;
   if (S.cfg.header.tombol_ukuran) { const i = indeksSkala(); h += `<div class="ukuran" role="group" aria-label="Ukuran teks"><button class="linkbtn" type="button" data-ukuran="-1" aria-label="Perkecil teks" ${i === 0 ? 'disabled' : ''}>A−</button><button class="linkbtn" type="button" data-ukuran="0" aria-label="Ukuran teks normal">A</button><button class="linkbtn" type="button" data-ukuran="1" aria-label="Perbesar teks" ${i === SKALA.length - 1 ? 'disabled' : ''}>A+</button></div>`; }
   h += `<button class="linkbtn segar" type="button" data-segarkan title="Ambil data terbaru dari database" aria-label="Perbarui data"><span aria-hidden="true">↻</span><span class="tx"> Perbarui data</span></button>`;
+  if (pmlBerlaku()) h = '<a class="masuk" href="#/masuk">Masuk pengelola</a>';
   $('#nav').innerHTML = h;
+  barPml();
   $('#util').innerHTML = S.user
     ? `<span>${esc(S.user.nama)} · ${esc(ROLE_LABEL[S.user.role] || S.user.role)}</span><a href="#/ganti-password">Ganti password</a><button type="button" id="btn-keluar">Keluar</button>`
     : `<a href="#/masuk">Admin pesantren? Perbarui data Anda</a>`;
@@ -2465,7 +2529,7 @@ async function siapkanBerkas(file) {
    ==================================================================== */
 function tabPanel(aktif) {
   const t = [['/panel', 'Daftar pesantren'], ['/panel/tambah', 'Tambah pesantren'], ['/panel/pembaruan', 'Pemantauan data'], ['/panel/peta', 'Titik peta'], ['/panel/pengguna', 'Pengguna'], ['/panel/review', 'Tinjau data lama'], ['/panel/log', 'Riwayat perubahan']];
-  if (S.user && S.user.role === 'superadmin') { t.push(['/panel/isian', 'Kelola isian']); t.push(['/panel/pengaturan', 'Pengaturan situs']); }
+  if (S.user && S.user.role === 'superadmin') { t.push(['/panel/isian', 'Kelola isian']); t.push(['/panel/pengaturan', 'Pengaturan situs']); t.push(['/panel/pemeliharaan', 'Pemeliharaan']); }
   return `<nav class="tab-panel" aria-label="Menu panel">${t.map(([p, n]) => `<a href="#${p}" ${p === aktif ? 'aria-current="page"' : ''}>${n}</a>`).join('')}</nav>`;
 }
 function perluStaf(el) {
@@ -3088,6 +3152,49 @@ async function pagePanelPeta({ el, ok }) {
 }
 
 /* ====================================================================
+   PANEL: MODE PEMELIHARAAN (khusus super admin)
+   ==================================================================== */
+async function pagePemeliharaan({ el, ok }) {
+  if (!S.user) { go('/masuk'); return; }
+  if (S.user.role !== 'superadmin') { el.innerHTML = `<div class="wrap"><div class="galat">Halaman ini khusus super admin.</div></div>`; return; }
+  document.title = 'Mode pemeliharaan — Panel';
+  el.innerHTML = muat();
+  let d = await apiJaringan('pemeliharaan');
+  if (!ok()) return;
+  const gambar = () => {
+    S.pml = d; barPml();
+    el.innerHTML = `<div class="wrap"><div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Mode pemeliharaan</h1></div>${tabPanel('/panel/pemeliharaan')}
+      <p class="muted" style="max-width:72ch;margin:0 0 16px">Gunakan saat tim memperbarui atau merevisi fitur. Selama aktif, pengunjung dan semua pengguna selain super admin tidak bisa membuka atau mengubah data. Penolakan dilakukan di server, bukan hanya di tampilan. Super admin tetap bisa masuk dan bekerja seperti biasa.</p>
+      <div class="pml-status ${d.aktif ? 'aktif' : ''}" role="status"><b>${d.aktif ? 'Sedang AKTIF' : 'Nonaktif'}</b>${d.aktif && d.sejak ? ' sejak ' + esc(d.sejak) : ''}</div>
+      <form id="f-pml" class="pml-form" novalidate>
+        <div class="fl"><label for="pml-pesan">Pesan untuk pengunjung</label><textarea id="pml-pesan" rows="3" maxlength="500" placeholder="Sistem sedang diperbarui oleh tim pengembang. Data Anda aman. Silakan kembali beberapa saat lagi.">${esc(d.pesan_kustom !== undefined ? d.pesan_kustom : (d.aktif ? d.pesan : ''))}</textarea></div>
+        <div class="fl"><label for="pml-perkiraan">Perkiraan selesai (opsional)</label><input id="pml-perkiraan" type="text" maxlength="120" placeholder="contoh: Sabtu, 8 November 2026 pukul 16.00 WIB" value="${esc(d.perkiraan || '')}"></div>
+        <div class="aksi-baris" style="margin-top:6px">
+          ${d.aktif ? '<button type="submit" class="btn sek" data-aktif="1">Perbarui pesan</button><button type="button" class="btn" id="pml-mati">Matikan pemeliharaan</button>' : '<button type="submit" class="btn bahaya" data-aktif="1">Aktifkan pemeliharaan</button>'}
+        </div>
+      </form>
+      <h2 style="font-size:1.15rem;margin:28px 0 8px">Tampilan untuk pengunjung</h2>
+      <div class="pml-pratinjau" id="pml-pr" aria-label="Pratinjau halaman pemeliharaan"></div>
+      <p class="muted kecil" style="margin-top:14px">Jika Anda tidak bisa masuk saat mode ini aktif, buka editor Apps Script dan jalankan fungsi <b>matikanPemeliharaan</b> (atau menu LP2 PPM &gt; Matikan mode pemeliharaan di spreadsheet).</p></div>`;
+    const pr = () => { $('#pml-pr').innerHTML = halamanPemeliharaan({ pesan: $('#pml-pesan').value.trim(), perkiraan: $('#pml-perkiraan').value.trim() }, true); };
+    pr(); $('#pml-pesan').oninput = pr; $('#pml-perkiraan').oninput = pr;
+    const kirim = async aktif => {
+      try {
+        const r = await api('setPemeliharaan', { aktif, pesan: $('#pml-pesan').value, perkiraan: $('#pml-perkiraan').value });
+        d = r; toast(r.info || 'Tersimpan.'); pmlSebelum = JSON.stringify([!!d.aktif, d.pesan, d.perkiraan]); renderNav(); gambar();
+      } catch (er) { toast(er.message || 'Gagal menyimpan.', 'galat'); }
+    };
+    $('#f-pml').onsubmit = async e => {
+      e.preventDefault();
+      if (d.aktif) { await kirim(true); return; }
+      if (await konfirmasi('Aktifkan mode pemeliharaan?', 'Pengunjung dan semua pengguna selain super admin langsung tidak bisa mengakses sistem, termasuk admin pondok yang sedang mengisi data. Pastikan sudah memberi tahu tim.', 'Aktifkan sekarang', true)) await kirim(true);
+    };
+    const mati = $('#pml-mati'); if (mati) mati.onclick = async () => { if (await konfirmasi('Matikan mode pemeliharaan?', 'Sistem akan kembali bisa diakses semua pengguna.', 'Matikan')) await kirim(false); };
+  };
+  gambar();
+}
+
+/* ====================================================================
    PANEL: PENGATURAN SITUS
    ==================================================================== */
 const BAGIAN_CFG = [['identitas', 'Identitas'], ['tema', 'Tema'], ['header', 'Header & menu'], ['beranda', 'Beranda'], ['footer', 'Footer'], ['pengumuman', 'Pengumuman']];
@@ -3465,6 +3572,7 @@ async function pageLog({ el, q, ok }) {
 muatSesi();
 pasangSkala();
 (async () => {
+  cekPemeliharaan();
   let cache = null;
   try { cache = JSON.parse(store.get('lp2pp.cfg') || 'null'); } catch (e) { cache = null; }
   if (cache) {
