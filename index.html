@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Data Pesantren Muhammadiyah</title>
-<meta name="description" id="meta-desc" content="Direktori dan basis data pesantren Muhammadiyah se-Indonesia, dikelola LP2 PP Muhammadiyah.">
+<meta name="description" id="meta-desc" content="Direktori dan basis data pesantren Muhammadiyah se-Indonesia, dikelola LP2 PPM.">
 <meta name="theme-color" content="#0d3a2c" id="meta-tema">
 <link rel="icon" type="image/png" href="warna.png" id="ikon-situs">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -810,12 +810,12 @@ function logoGagal(img){const n=+(img.dataset.n||0);if(/warna\.png/.test(img.src
 <body>
 <a class="skip" href="#utama">Lewati ke konten utama</a>
 <div id="pengumuman" class="pengumuman" hidden></div>
-<div class="utilbar"><div class="wrap"><span id="util-teks">Lembaga Pesantren Muhammadiyah Pusat</span><div id="util"></div></div></div>
+<div class="utilbar"><div class="wrap"><span id="util-teks">Lembaga Pengembangan Pesantren Pimpinan Pusat Muhammadiyah</span><div id="util"></div></div></div>
 <header class="topbar">
   <div class="wrap">
     <a class="brand" href="#/">
       <span class="logo-kotak"><img src="warna.png" alt="" width="54" height="54" onerror="logoGagal(this)"></span>
-      <span><span id="brand-judul">Data Pesantren Muhammadiyah</span><small id="brand-sub">LP2 PP Muhammadiyah</small></span>
+      <span><span id="brand-judul">Data Pesantren Muhammadiyah</span><small id="brand-sub">LP2 PPM</small></span>
     </a>
     <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav"><span class="sr">Menu</span><i></i><i></i><i></i></button>
     <nav class="nav" id="nav" aria-label="Navigasi utama"></nav>
@@ -874,7 +874,7 @@ const LABEL = {
   lahan_total_ha: 'Luas lahan keseluruhan', status_tanah: 'Status kepemilikan tanah', lahan_kosong_ha: 'Lahan belum dibangun', lahan_wakaf_ha: 'Tanah wakaf', lahan_hibah_ha: 'Tanah hibah',
   lahan_beli_ha: 'Tanah beli', lahan_sert_persyarikatan_ha: 'Sertifikat atas nama persyarikatan', lahan_belum_persyarikatan_ha: 'Sertifikat belum atas nama persyarikatan', luas_bangunan_m2: 'Luas bangunan',
   hanya_program: 'Hanya sebagai program (belum punya NSP)', kurikulum: 'Kurikulum', kurikulum_lain: 'Kurikulum lain', program_khas: 'Program khas', program_khas_lain: 'Program khas lain',
-  buku_ajar_lp2pp: 'Pemakaian buku ajar Dirasah Islamiyah LP2 PP', jumlah_judul_buku: 'Judul buku yang dipakai',
+  buku_ajar_lp2pp: 'Pemakaian buku ajar Dirasah Islamiyah LP2 PPM', jumlah_judul_buku: 'Judul buku yang dipakai',
   prestasi_akd_kab: 'Prestasi akademik, tingkat kabupaten', prestasi_akd_prov: 'Prestasi akademik, tingkat provinsi', prestasi_akd_nas: 'Prestasi akademik, tingkat nasional', prestasi_akd_int: 'Prestasi akademik, tingkat internasional',
   prestasi_non_kab: 'Prestasi non-akademik, tingkat kabupaten', prestasi_non_prov: 'Prestasi non-akademik, tingkat provinsi', prestasi_non_nas: 'Prestasi non-akademik, tingkat nasional', prestasi_non_int: 'Prestasi non-akademik, tingkat internasional',
   punya_unit_usaha: 'Punya unit usaha', jenis_unit_usaha: 'Jenis unit usaha', produk_unggulan: 'Produk unggulan', punya_badan_usaha: 'Punya badan usaha (koperasi/UD/CV/PT)', nama_badan_usaha: 'Nama badan usaha',
@@ -884,10 +884,10 @@ const LABEL = {
   dibuat_pada: 'Dibuat pada', diubah_pada: 'Terakhir diubah', diubah_oleh: 'Diubah oleh', status_data: 'Kelengkapan isian'
 };
 const HINT = {
-  nsp: 'Kosongkan bila belum punya NSP. Isi 12 digit angka.', nrpm: '12 digit angka. Diisi operator LP2 PP.', maps_url: 'Tempel tautan titik lokasi dari Google Maps.',
+  nsp: 'Kosongkan bila belum punya NSP. Isi 12 digit angka.', nrpm: '12 digit angka. Diisi operator LP2 PPM.', maps_url: 'Tempel tautan titik lokasi dari Google Maps.',
   santri_putra: 'Isi 0 bila tidak ada.', santri_putri: 'Isi 0 bila tidak ada.', telp: 'Boleh lebih dari satu, pisahkan dengan garis miring (/).',
   lahan_total_ha: 'Tulis dalam hektar. Contoh: 1,5', luas_bangunan_m2: 'Tulis dalam meter persegi.', gtk_kekurangan_di: 'Tulis dengan angka. Contoh: 5',
-  jumlah_judul_buku: 'Isi bila sudah memakai buku ajar LP2 PP. Contoh: 2', sejarah: 'Maksimal sekitar 1.000 kata.', penyelenggara: 'Contoh: PDM Bantul, PCM Cileungsi',
+  jumlah_judul_buku: 'Isi bila sudah memakai buku ajar LP2 PPM. Contoh: 2', sejarah: 'Maksimal sekitar 1.000 kata.', penyelenggara: 'Contoh: PDM Bantul, PCM Cileungsi',
   catatan_isian_lama: 'Tulisan asli dari formulir lama. Pindahkan angkanya ke kolom yang sesuai bila perlu.'
 };
 const SATUAN = { ha: 'ha', m2: 'm²', orang: 'orang', judul: 'judul' };
@@ -1048,11 +1048,11 @@ async function authMeta() {
    PENGATURAN SITUS (tema, header, footer, beranda)
    ==================================================================== */
 const CFG_BAWAAN = {
-  situs: { judul: 'Data Pesantren Muhammadiyah', subjudul: 'LP2 PP Muhammadiyah', deskripsi: 'Direktori dan basis data pesantren Muhammadiyah se-Indonesia, dikelola LP2 PP Muhammadiyah.', logo: 'warna.png', favicon: 'warna.png' },
+  situs: { judul: 'Data Pesantren Muhammadiyah', subjudul: 'LP2 PPM', deskripsi: 'Direktori dan basis data pesantren Muhammadiyah se-Indonesia, dikelola LP2 PPM.', logo: 'warna.png', favicon: 'warna.png' },
   tema: { preset: 'hijau', warna_utama: '#0d3a2c', warna_aksen: '#d6a21f', warna_latar: '#f5f7f4', font: 'atkinson', ukuran: 'normal', sudut: 'sedang', header: 'putih' },
-  header: { utilbar_tampil: true, utilbar_teks: 'Lembaga Pesantren Muhammadiyah Pusat', tampil_statistik: true, tombol_ukuran: true, menu: [] },
+  header: { utilbar_tampil: true, utilbar_teks: 'Lembaga Pengembangan Pesantren Pimpinan Pusat Muhammadiyah', tampil_statistik: true, tombol_ukuran: true, menu: [] },
   beranda: { hero_judul: 'Data pesantren Muhammadiyah se-Indonesia', hero_lead: 'Cari pesantren, baca profilnya, dan lihat sebarannya di tiap provinsi.', tampil_cepat: true, tampil_angka: true, tampil_sorotan: true, jumlah_sorotan: '6', sorot_kolom: '3', potret_judul: 'Potret pesantren', potret_lede: 'Bangunan dan kegiatan dari pesantren Muhammadiyah di berbagai daerah.', potret_mode: 'gabung', potret_kustom: [], tampil_potret: true, hero_gambar: '', hero_jelas: '35' },
-  footer: { deskripsi: 'Basis data pesantren Muhammadiyah se-Indonesia yang dikelola Lembaga Pesantren Muhammadiyah Pusat. Data diperbarui oleh admin tiap pesantren dan diverifikasi operator.', tampil_provinsi: true, kolom_judul: 'Tautan', kolom_link: [], alamat: '', email: '', telepon: '', facebook: '', instagram: '', youtube: '', tiktok: '', x: '', website: '', copyright: 'LP2 PP Muhammadiyah' },
+  footer: { deskripsi: 'Basis data pesantren Muhammadiyah se-Indonesia yang dikelola Lembaga Pengembangan Pesantren Pimpinan Pusat Muhammadiyah. Data diperbarui oleh admin tiap pesantren dan diverifikasi operator.', tampil_provinsi: true, kolom_judul: 'Tautan', kolom_link: [], alamat: '', email: '', telepon: '', facebook: '', instagram: '', youtube: '', tiktok: '', x: '', website: '', copyright: 'LP2 PPM' },
   pengumuman: { tampil: false, teks: '', link: '', warna: 'emas' }
 };
 const PRESET = {
@@ -1575,7 +1575,7 @@ async function pageStatistik({ el, ok, gulir }) {
   <section class="bagian"><div class="wrap tiga">
     <div class="kartu-grafik"><h2>Satuan pendidikan</h2><p class="muted kecil">Dari ${ang(st.ringkasan.pesantren)} pesantren. Satu pesantren bisa punya beberapa satuan.</p>${daftarBatang(st.layanan.slice(0, 8), st.ringkasan.pesantren)}</div>
     <div class="kartu-grafik"><h2>Kurikulum yang dipakai</h2><p class="muted kecil">Proporsi pesantren menurut kurikulum.</p>${donutHtml(st.kurikulum, 'pesantren')}</div>
-    <div class="kartu-grafik"><h2>Buku ajar Dirasah Islamiyah LP2 PP</h2><p class="muted kecil">Seberapa jauh buku ajar LP2 PP sudah dipakai.</p>${donutHtml(st.buku_ajar, 'pesantren')}</div>
+    <div class="kartu-grafik"><h2>Buku ajar Dirasah Islamiyah LP2 PPM</h2><p class="muted kecil">Seberapa jauh buku ajar LP2 PPM sudah dipakai.</p>${donutHtml(st.buku_ajar, 'pesantren')}</div>
   </div></section>`;
   pasangPeta(el, st.per_provinsi);
   $$('.donut-wrap', el).forEach(w => {
@@ -1803,7 +1803,7 @@ async function pageProfil({ el, args, ok }) {
   el.innerHTML = `
   <div class="wrap">
     <div class="kepala-profil">
-      <div class="cetak-judul"><img src="warna.png" alt="" style="height:46px;width:auto;vertical-align:middle;margin-right:8px" onerror="logoGagal(this)">Profil Pondok Pesantren Muhammadiyah · LP2 PP Muhammadiyah</div>
+      <div class="cetak-judul"><img src="warna.png" alt="" style="height:46px;width:auto;vertical-align:middle;margin-right:8px" onerror="logoGagal(this)">Profil Pondok Pesantren Muhammadiyah · LP2 PPM</div>
       <div class="banner-profil${sampulProfil ? ' ada-banner' : ''}">${sampulProfil ? `<div class="banner-img" role="img" aria-label="Foto ${esc(p.nama)}" style="background-image:url('${esc(sampulProfil.thumb)}')"></div>` : ''}
       <div class="remah kecil"><a href="#/direktori">Direktori</a> / <a href="#/direktori${qs({ provinsi: p.provinsi })}">${esc(p.provinsi)}</a></div>
       <h1>${esc(p.nama)}</h1>
@@ -1828,9 +1828,9 @@ async function pageProfil({ el, args, ok }) {
       </aside>
       <div>
         <div class="akordion-bar noprint"><span class="muted kecil">Klik judul bagian untuk melihat rinciannya.</span><button class="btn sek kecil" type="button" id="btn-semua" data-buka="1">Buka semua</button></div>
-        ${seksiBuat.map(([sk, cs]) => { const terisi = cs.filter(c => p[c.kolom] !== '' && p[c.kolom] !== null && p[c.kolom] !== undefined).length; return `<details class="seksi" data-sk="${esc(sk)}"${['Identitas', 'Kesantrian'].includes(sk) ? ' open' : ''}><summary><span>${esc(sk)}</span><span class="terisi">${terisi} dari ${cs.length} terisi</span></summary><dl>${cs.map(c => `<div class="bidang${c.tipe === 'teks_panjang' ? ' teks-penuh' : ''}"><dt>${esc(label(c))}${lengkap && c.vis === 'terbatas' && sk !== 'Sistem' ? '<span class="tag" title="Hanya terlihat oleh pengelola pesantren dan LP2 PP">tidak tampil publik</span>' : ''}</dt><dd class="${c.tipe === 'teks_panjang' ? 'teks' : ''}" ${c.tipe === 'teks_panjang' ? 'lang="id"' : ''}>${nilaiHtml(c, p[c.kolom])}</dd></div>`).join('')}</dl></details>`; }).join('')}
+        ${seksiBuat.map(([sk, cs]) => { const terisi = cs.filter(c => p[c.kolom] !== '' && p[c.kolom] !== null && p[c.kolom] !== undefined).length; return `<details class="seksi" data-sk="${esc(sk)}"${['Identitas', 'Kesantrian'].includes(sk) ? ' open' : ''}><summary><span>${esc(sk)}</span><span class="terisi">${terisi} dari ${cs.length} terisi</span></summary><dl>${cs.map(c => `<div class="bidang${c.tipe === 'teks_panjang' ? ' teks-penuh' : ''}"><dt>${esc(label(c))}${lengkap && c.vis === 'terbatas' && sk !== 'Sistem' ? '<span class="tag" title="Hanya terlihat oleh pengelola pesantren dan LP2 PPM">tidak tampil publik</span>' : ''}</dt><dd class="${c.tipe === 'teks_panjang' ? 'teks' : ''}" ${c.tipe === 'teks_panjang' ? 'lang="id"' : ''}>${nilaiHtml(c, p[c.kolom])}</dd></div>`).join('')}</dl></details>`; }).join('')}
         <p class="cetak-kaki">Dicetak dari ${esc(judulSitus())}, pada ${esc(new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }))}. Data dapat berubah sewaktu-waktu.</p>
-        ${!lengkap && S.user === null ? '<p class="info noprint kecil">Data kontak dan rincian internal hanya terlihat oleh pengelola pesantren dan LP2 PP setelah masuk.</p>' : ''}
+        ${!lengkap && S.user === null ? '<p class="info noprint kecil">Data kontak dan rincian internal hanya terlihat oleh pengelola pesantren dan LP2 PPM setelah masuk.</p>' : ''}
       </div>
     </div>
   </div>`;
@@ -1852,15 +1852,15 @@ async function pageMasuk({ el }) {
   if (S.user) { go(S.user.role === 'admin_pondok' && S.user.id_pesantren ? '/pesantren/' + S.user.id_pesantren : (isStaff() ? '/panel' : '/')); return; }
   el.innerHTML = `<div class="wrap"><div class="kartu-login">
     <h1 style="font-size:1.7rem">Masuk</h1>
-    <p class="muted" style="margin-top:6px">Untuk admin pesantren, operator, dan pimpinan LP2 PP. Pengunjung umum tidak perlu masuk.</p>
+    <p class="muted" style="margin-top:6px">Untuk admin pesantren, operator, dan pimpinan LP2 PPM. Pengunjung umum tidak perlu masuk.</p>
     <form id="f-masuk" novalidate>
       <div class="fl"><label for="m-email">Email</label><input id="m-email" type="email" autocomplete="username" required></div>
       <div class="fl"><label for="m-pw">Password</label><input id="m-pw" type="password" autocomplete="current-password" required></div>
       <div id="m-err" class="galat" role="alert" style="margin:0;display:none"></div>
       <button class="btn" type="submit">Masuk</button>
-      <p class="kecil muted">Lupa password? Minta operator LP2 PP untuk mereset akun Anda.</p>
+      <p class="kecil muted">Lupa password? Minta operator LP2 PPM untuk mereset akun Anda.</p>
     </form>
-    <p class="kecil" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--garis)"><b>Admin pesantren baru?</b> Punya token undangan dari LP2 PP? <a href="#/token">Masuk dengan token</a></p></div></div>`;
+    <p class="kecil" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--garis)"><b>Admin pesantren baru?</b> Punya token undangan dari LP2 PPM? <a href="#/token">Masuk dengan token</a></p></div></div>`;
   $('#f-masuk').onsubmit = async e => {
     e.preventDefault();
     const b = $('button[type=submit]', el), er = $('#m-err');
@@ -1920,7 +1920,7 @@ async function pageToken({ el, ok }) {
 
   const layarMasuk = (pesan) => {
     kartu(`<h1 style="font-size:1.7rem">Masuk dengan token</h1>
-      <p class="muted" style="margin-top:6px">Masukkan token undangan yang Anda terima dari LP2 PP. Setelah itu Anda mengisi data admin pesantren untuk diperiksa dan disetujui.</p>
+      <p class="muted" style="margin-top:6px">Masukkan token undangan yang Anda terima dari LP2 PPM. Setelah itu Anda mengisi data admin pesantren untuk diperiksa dan disetujui.</p>
       <form id="f-tok" novalidate>
         <div class="fl"><label for="tk">Token undangan</label><input id="tk" type="text" class="tokenbox" placeholder="XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text" maxlength="14"></div>
         <div id="tk-err" class="galat" role="alert" style="margin:0;${pesan ? '' : 'display:none'}">${esc(pesan || '')}</div>
@@ -1944,7 +1944,7 @@ async function pageToken({ el, ok }) {
     kartu(`<h1 style="font-size:1.6rem">Data admin pesantren</h1>
       <div class="info" style="margin-top:12px"><b>${esc(d.nama_pesantren || d.id_pesantren)}</b><div class="kecil">${esc(d.id_pesantren)} · Token berlaku sampai ${esc(String(d.kadaluarsa || '').slice(0, 10))}</div></div>
       ${tolak ? `<div class="peringatan" style="margin-top:12px"><b>Pengajuan sebelumnya ditolak</b><div>${esc(d.catatan || '')}</div><div class="kecil">Perbaiki data di bawah, lalu kirim ulang.</div></div>` : ''}
-      <p class="muted" style="margin-top:12px">Semua kolom wajib diisi. Setelah dikirim, super admin LP2 PP akan memeriksa dan menyetujui sebelum akun Anda aktif.</p>
+      <p class="muted" style="margin-top:12px">Semua kolom wajib diisi. Setelah dikirim, super admin LP2 PPM akan memeriksa dan menyetujui sebelum akun Anda aktif.</p>
       <form id="f-und" novalidate>
         <div class="fl"><label for="u-em">Email admin <span class="wajib">*</span></label><input id="u-em" type="text" data-aturan="email" inputmode="email" autocapitalize="off" spellcheck="false" autocomplete="username" placeholder="nama@domain.com" value="${esc(d.email || '')}"><span class="hint">Email ini dipakai untuk masuk. Pakai email yang aktif.</span></div>
         <div class="fl"><label for="u-nm">Nama admin <span class="wajib">*</span></label><input id="u-nm" type="text" data-aturan="teks" autocomplete="name" value="${esc(d.nama_admin || '')}"><span class="hint">Nama lengkap pengelola data pesantren ini.</span></div>
@@ -1975,7 +1975,7 @@ async function pageToken({ el, ok }) {
 
   const layarTunggu = d => {
     kartu(`<h1 style="font-size:1.6rem">Menunggu persetujuan</h1>
-      <div class="info" style="margin-top:12px"><b>Data Anda sudah terkirim.</b><div>Super admin LP2 PP akan memeriksa lalu menyetujui. Setelah disetujui, Anda dapat masuk dengan email dan password yang baru Anda buat.</div></div>
+      <div class="info" style="margin-top:12px"><b>Data Anda sudah terkirim.</b><div>Super admin LP2 PPM akan memeriksa lalu menyetujui. Setelah disetujui, Anda dapat masuk dengan email dan password yang baru Anda buat.</div></div>
       <dl class="und-data" style="margin-top:14px"><dt>Pesantren</dt><dd>${esc(d.nama_pesantren)} (${esc(d.id_pesantren)})</dd><dt>Email admin</dt><dd>${esc(d.email)}</dd><dt>Nama admin</dt><dd>${esc(d.nama_admin)}</dd><dt>Nama pondok</dt><dd>${esc(d.nama_pondok)}</dd><dt>Dikirim</dt><dd>${esc(d.diajukan_pada)}</dd></dl>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn" id="u-cek" type="button">Periksa status</button><button class="btn sek" id="u-batal" type="button">Tutup</button></div>`);
     $('#u-batal').onclick = keluarToken;
@@ -2129,7 +2129,7 @@ async function pageUbah({ el, args, ok }) {
   el.innerHTML = `
   <div class="wrap">
     <div class="judul-hal"><div class="kecil" style="margin-bottom:8px"><a href="#/pesantren/${esc(id)}">← Kembali ke profil</a></div><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Ubah data: ${esc(p.nama)}</h1>
-    <p class="muted" style="margin-top:8px">${S.user.role === 'admin_pondok' ? 'Setelah disimpan, data akan menunggu verifikasi operator LP2 PP. Kolom bertanda <span class="wajib">*</span> wajib diisi.' : 'Kolom bertanda <span class="wajib">*</span> wajib diisi.'}</p></div>
+    <p class="muted" style="margin-top:8px">${S.user.role === 'admin_pondok' ? 'Setelah disimpan, data akan menunggu verifikasi operator LP2 PPM. Kolom bertanda <span class="wajib">*</span> wajib diisi.' : 'Kolom bertanda <span class="wajib">*</span> wajib diisi.'}</p></div>
     <div id="draf-info"></div>
     <div id="peringatan-form"></div>
     <form id="form-ubah" novalidate>
@@ -2337,7 +2337,7 @@ function tabPanel(aktif) {
 }
 function perluStaf(el) {
   if (!S.user) { go('/masuk'); return false; }
-  if (!isStaff()) { el.innerHTML = `<div class="wrap"><div class="galat">Halaman ini khusus operator LP2 PP.</div></div>`; return false; }
+  if (!isStaff()) { el.innerHTML = `<div class="wrap"><div class="galat">Halaman ini khusus operator LP2 PPM.</div></div>`; return false; }
   return true;
 }
 
@@ -2739,7 +2739,7 @@ async function pagePengaturan({ el, ok }) {
       ${f('beranda.potret_lede', 'Keterangan singkat', { area: 2, penuh: true, max: 160, hint: 'Tampil di bawah judul. Boleh dikosongkan.' })}
       <div class="fl penuh"><span class="lab">Sumber foto</span>${radio('beranda.potret_mode', 'pmode', [['gabung', 'Foto kustom, lalu foto dari pesantren'], ['kustom', 'Hanya foto kustom']])}</div>
       <div class="fl penuh"><span class="lab">Foto kustom <span class="muted kecil">(${(draf.beranda.potret_kustom || []).length} dari 8)</span></span>
-        <span class="hint">Tambahkan foto sendiri, misalnya kegiatan LP2 PP. Ukuran ideal <b>1600 × 900 piksel</b> (16:9), JPG atau WEBP, maksimal 2 MB. Foto kustom tampil lebih dulu.</span>
+        <span class="hint">Tambahkan foto sendiri, misalnya kegiatan LP2 PPM. Ukuran ideal <b>1600 × 900 piksel</b> (16:9), JPG atau WEBP, maksimal 2 MB. Foto kustom tampil lebih dulu.</span>
         <div id="daftar-potret">${(draf.beranda.potret_kustom || []).map((it, i) => { const src = asetAman(it.gambar), P = `beranda.potret_kustom.${i}.gambar`; return `<div class="item-potret"><div class="contoh">${src ? `<img src="${esc(src)}" alt="" onerror="this.remove()">` : ''}</div><div class="kolom-potret">
           <div class="fl"><label for="pt_j${i}">Judul foto</label><input id="pt_j${i}" type="text" maxlength="80" data-l="beranda.potret_kustom" data-i="${i}" data-k="judul" value="${esc(it.judul || '')}"></div>
           <div class="fl"><label for="pt_u${i}">Tautan saat diklik (opsional)</label><input id="pt_u${i}" type="text" data-l="beranda.potret_kustom" data-i="${i}" data-k="url" value="${esc(it.url || '')}" placeholder="https://… atau #/direktori"></div>
@@ -2880,7 +2880,7 @@ async function pageIsian({ el, ok }) {
           <label class="saklar"><input type="checkbox" data-f="wajib" ${c.wajib ? 'checked' : ''} ${inti ? 'disabled' : ''}><span>Wajib diisi</span></label>
           <label class="saklar"><input type="checkbox" data-f="vis" ${c.vis === 'publik' ? 'checked' : ''} ${inti ? 'disabled' : ''}><span>Tampil di profil publik</span></label>
         </div>
-        <div class="fl"><label for="${id}_e">Yang mengisi</label><select id="${id}_e" data-f="editor" ${inti ? 'disabled' : ''}><option value="admin_pondok" ${c.editor === 'admin_pondok' ? 'selected' : ''}>Admin pondok</option><option value="operator" ${c.editor === 'operator' ? 'selected' : ''}>Hanya operator LP2 PP</option></select></div>
+        <div class="fl"><label for="${id}_e">Yang mengisi</label><select id="${id}_e" data-f="editor" ${inti ? 'disabled' : ''}><option value="admin_pondok" ${c.editor === 'admin_pondok' ? 'selected' : ''}>Admin pondok</option><option value="operator" ${c.editor === 'operator' ? 'selected' : ''}>Hanya operator LP2 PPM</option></select></div>
         <p class="isian-catatan penuh">Judul asli di formulir: ${esc(c.asli)}<br>${inti ? 'Isian inti: pengaturan tampil, wajib, publik, dan pengisi dikunci karena dipakai langsung oleh pencarian dan statistik.' : 'Menyembunyikan tidak menghapus data. Data lama tetap ada dan muncul lagi bila isian ditampilkan kembali.'}</p>
       </div>
     </li>`;
@@ -2914,7 +2914,7 @@ async function pageIsian({ el, ok }) {
           <div class="fl penuh" id="t-pilihan-wadah" hidden><label for="t-pilihan">Pilihan jawaban <span class="wajib">*</span></label><textarea id="t-pilihan" rows="4" placeholder="Satu pilihan per baris, minimal dua"></textarea><span class="hint" id="t-pilihan-hint"></span></div>
           <div class="fl"><label for="t-satuan">Satuan</label><input id="t-satuan" type="text" maxlength="20" placeholder="Contoh: orang, ruang (boleh kosong)"></div>
           <div class="fl"><label for="t-petunjuk">Petunjuk pengisian</label><input id="t-petunjuk" type="text" maxlength="200" placeholder="Boleh dikosongkan"></div>
-          <div class="fl"><label for="t-editor">Yang mengisi</label><select id="t-editor"><option value="admin_pondok">Admin pondok</option><option value="operator">Hanya operator LP2 PP</option></select></div>
+          <div class="fl"><label for="t-editor">Yang mengisi</label><select id="t-editor"><option value="admin_pondok">Admin pondok</option><option value="operator">Hanya operator LP2 PPM</option></select></div>
           <div class="cek penuh" style="display:flex;gap:18px;flex-wrap:wrap">
             <label class="saklar"><input type="checkbox" id="t-wajib"><span>Wajib diisi</span></label>
             <label class="saklar"><input type="checkbox" id="t-vis"><span>Tampil di profil publik</span></label>
