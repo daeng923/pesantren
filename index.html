@@ -725,6 +725,27 @@ footer a{color:#fff}
 @media (max-width:640px){.isian-utama{grid-template-columns:1fr}.isian-rinci{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.isian-rinci:not([hidden]){animation:munculTurun .2s var(--ease) both}}
 
+/* PETA TITIK PONDOK */
+.pt-bar{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:0 0 14px}
+.pt-bar .fl{min-width:min(260px,100%)}
+.pt-grid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
+.pt-peta{height:clamp(420px,68vh,640px);border:1px solid var(--garis);border-radius:var(--r3);overflow:hidden;isolation:isolate;z-index:0;background:var(--h50)}
+.pt-peta.leaflet-container{font:inherit}
+.pt-daftar{display:flex;flex-direction:column;gap:10px;max-height:clamp(420px,68vh,640px)}
+.pt-daftar ul{list-style:none;margin:0;padding:0;overflow-y:auto;border:1px solid var(--garis);border-radius:var(--r2);background:var(--putih);flex:1}
+.pt-item{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--garis2);padding:10px 12px;font:inherit;color:inherit;cursor:pointer}
+.pt-item b{display:block;line-height:1.3}
+.pt-item:hover,.pt-item:focus-visible,.pt-item.aktif{background:var(--h50)}
+.pt-item.aktif{box-shadow:inset 3px 0 0 var(--emas)}
+.pt-pop{font-size:.95rem;line-height:1.45;min-width:190px}
+.pt-pop a{color:var(--h700)}
+.pt-pop-aksi{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;font-weight:600}
+.pm-tile{flex:1 1 150px;text-align:left;padding:12px 16px 10px;border-left:1px solid var(--garis)}
+.pm-tile:first-child{border-left:0;padding-left:0}
+.pm-tile b{display:block;font:700 1.7rem/1.1 var(--judul);color:var(--h900);font-variant-numeric:tabular-nums}
+.pm-tile span{font-size:.88rem;color:var(--tinta2)}
+.galat-baris{color:#9b1c1c;margin-top:4px}
+@media (max-width:900px){.pt-grid{grid-template-columns:minmax(0,1fr)}.pt-peta{height:62vh}.pt-daftar{max-height:340px}}
 /* VERIFIKASI MASSAL, KONTAK WA, PEMANTAUAN */
 .tautan{background:none;border:0;padding:0 0 0 10px;color:var(--h700);font:inherit;text-decoration:underline;cursor:pointer}
 .tautan[hidden]{display:none}
@@ -1034,13 +1055,13 @@ function keluar(pesan) {
   go('/');
   renderNav();
 }
-const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec']);
+const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'petaTitik']);
 /* ---- cache data di browser (5 menit) ----
    Hasil baca dari server disimpan di localStorage, dikunci per pengguna + aksi + parameter.
    Setiap aksi tulis menghapus seluruh cache; tombol "Perbarui data" juga menghapusnya. */
 const CACHE_TTL = 5 * 60 * 1000, CACHE_PRE = 'lp2pp.c.', CACHE_MAKS = 400000;
-const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan', 'rekapPembaruan']);
-const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'simpanIsian', 'tambahIsian', 'buatUndangan', 'putuskanUndangan', 'changePassword', 'verifyBulk']);
+const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan', 'rekapPembaruan', 'petaTitik']);
+const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'simpanIsian', 'tambahIsian', 'buatUndangan', 'putuskanUndangan', 'changePassword', 'verifyBulk', 'petaSet', 'petaProses']);
 const cacheMem = {}, cacheJalan = {};
 function cacheKey(action, params) {
   const j = JSON.stringify(params || {}); let h = 5381; for (let i = 0; i < j.length; i++) h = ((h << 5) + h + j.charCodeAt(i)) | 0;
@@ -1229,9 +1250,11 @@ const ROUTES = [
   [/^\/statistik$/, pageStatistik],
   [/^\/sebaran$/, c => pageStatistik(Object.assign(c, { gulir: 'sebaran' }))],
   [/^\/direktori$/, pageDirektori],
+  [/^\/peta\/([^/]+)$/, pagePetaProv],
   [/^\/pesantren\/(PSN-\d+)$/, pageProfil],
   [/^\/ubah\/(PSN-\d+)$/, pageUbah],
   [/^\/panel\/pembaruan$/, pagePembaruan],
+  [/^\/panel\/peta$/, pagePanelPeta],
   [/^\/masuk$/, pageMasuk],
   [/^\/token$/, pageToken],
   [/^\/ganti-password$/, pageGantiPassword],
@@ -1501,7 +1524,7 @@ function pasangPeta(root, provs) {
     const d = data[n] || { jumlah: 0, santri: 0 }, u = urut(), rk = u.indexOf(n) + 1, pr = tot.jumlah ? Math.round(d.jumlah / tot.jumlah * 1000) / 10 : 0;
     panel.innerHTML = `<h3>${esc(n)}</h3><p class="muted kecil">Peringkat ${rk} dari ${nama.length} provinsi menurut jumlah ${SAT[metrik]}.</p>
       <dl class="pp-angka"><div><dt>Pesantren</dt><dd>${ang(d.jumlah)}</dd></div><div><dt>Santri</dt><dd>${ang(d.santri || 0)}</dd></div><div><dt>Porsi pesantren nasional</dt><dd>${String(pr).replace('.', ',')}%</dd></div><div><dt>Rata-rata santri per pesantren</dt><dd>${d.jumlah ? ang(Math.round((d.santri || 0) / d.jumlah)) : '—'}</dd></div></dl>
-      <div class="pp-aksi">${d.jumlah ? `<a class="btn kecil" href="#/direktori${qs({ provinsi: n })}">Lihat ${ang(d.jumlah)} pesantren</a>` : '<span class="muted kecil">Belum ada pesantren terdata di provinsi ini.</span>'}<button class="btn sek kecil" type="button" data-pilih="">Kembali ke semua provinsi</button></div>`;
+      <div class="pp-aksi">${d.jumlah ? `<a class="btn kecil" href="#/direktori${qs({ provinsi: n })}">Lihat ${ang(d.jumlah)} pesantren</a><a class="btn sek kecil" href="#/peta/${encodeURIComponent(n)}">Buka peta titik pondok</a>` : '<span class="muted kecil">Belum ada pesantren terdata di provinsi ini.</span>'}<button class="btn sek kecil" type="button" data-pilih="">Kembali ke semua provinsi</button></div>`;
   }
   function pilihProv(n, tanpaZoom) {
     if (pilih && paths[pilih]) paths[pilih].classList.remove('sel');
@@ -2413,7 +2436,7 @@ async function siapkanBerkas(file) {
    PANEL OPERATOR
    ==================================================================== */
 function tabPanel(aktif) {
-  const t = [['/panel', 'Daftar pesantren'], ['/panel/tambah', 'Tambah pesantren'], ['/panel/pembaruan', 'Pemantauan data'], ['/panel/pengguna', 'Pengguna'], ['/panel/review', 'Tinjau data lama'], ['/panel/log', 'Riwayat perubahan']];
+  const t = [['/panel', 'Daftar pesantren'], ['/panel/tambah', 'Tambah pesantren'], ['/panel/pembaruan', 'Pemantauan data'], ['/panel/peta', 'Titik peta'], ['/panel/pengguna', 'Pengguna'], ['/panel/review', 'Tinjau data lama'], ['/panel/log', 'Riwayat perubahan']];
   if (S.user && S.user.role === 'superadmin') { t.push(['/panel/isian', 'Kelola isian']); t.push(['/panel/pengaturan', 'Pengaturan situs']); }
   return `<nav class="tab-panel" aria-label="Menu panel">${t.map(([p, n]) => `<a href="#${p}" ${p === aktif ? 'aria-current="page"' : ''}>${n}</a>`).join('')}</nav>`;
 }
@@ -2876,6 +2899,126 @@ async function pagePembaruan({ el, ok }) {
   };
   const pasang = (id, k, tunda) => { const f = () => { F[k] = $(id).value; F.hal = 1; gambar(); }; $(id).oninput = tunda ? debounce(f, 200) : f; $(id).onchange = f; };
   pasang('#pm-q', 'q', true); pasang('#pm-prov', 'prov'); pasang('#pm-oleh', 'oleh'); pasang('#pm-sejak', 'sejak'); pasang('#pm-urut', 'urut');
+  gambar();
+}
+
+/* ====================================================================
+   PETA TITIK PONDOK PER PROVINSI (Leaflet + OpenStreetMap)
+   ==================================================================== */
+const LEAFLET = { css: ['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css', 'sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H'],
+  js: ['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js', 'sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH'] };
+let petaInst = null, leafletJanji = null;
+function muatLeaflet() {
+  if (window.L && window.L.map) return Promise.resolve(window.L);
+  if (leafletJanji) return leafletJanji;
+  leafletJanji = new Promise((res, rej) => {
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = LEAFLET.css[0]; css.integrity = LEAFLET.css[1]; css.crossOrigin = ''; document.head.appendChild(css);
+    const js = document.createElement('script'); js.src = LEAFLET.js[0]; js.integrity = LEAFLET.js[1]; js.crossOrigin = '';
+    js.onload = () => (window.L && window.L.map ? res(window.L) : rej(new Error('Leaflet'))); js.onerror = () => { leafletJanji = null; rej(new Error('Leaflet')); };
+    document.head.appendChild(js);
+  });
+  return leafletJanji;
+}
+const urlGmaps = (lat, lng) => 'https://www.google.com/maps?q=' + lat + ',' + lng;
+
+async function pagePetaProv({ el, args, ok }) {
+  clearInterval(sliderTimer);
+  if (petaInst) { try { petaInst.remove(); } catch (e) { } petaInst = null; }
+  let prov = ''; try { prov = decodeURIComponent(args[0]); } catch (e) { }
+  document.title = 'Peta pondok ' + prov + ' — ' + judulSitus();
+  el.innerHTML = muat('Memuat peta…');
+  await pubMeta(); if (!ok()) return;
+  const daftarProv = S.pubMeta.provinsi.map(x => x.nilai);
+  if (!daftarProv.includes(prov)) { el.innerHTML = `<div class="wrap"><div class="galat">Provinsi tidak dikenal. <a href="#/sebaran">Kembali ke peta sebaran</a>.</div></div>`; return; }
+  const [d, L] = await Promise.all([api('petaTitik', { provinsi: prov }), muatLeaflet().catch(() => null)]);
+  if (!ok()) return;
+  const t = d.titik.slice().sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+  el.innerHTML = `<div class="wrap pt-hal">
+    <div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Peta pondok ${esc(prov)}</h1></div>
+    <p class="muted" style="max-width:70ch;margin:0 0 14px"><b>${ang(t.length)}</b> dari ${ang(d.total_pesantren)} pesantren di provinsi ini sudah memiliki titik lokasi${d.tanpa_titik ? `. ${ang(d.tanpa_titik)} lainnya belum ada titiknya` : ''}. Titik berasal dari tautan Google Maps yang diisi pada profil pesantren.</p>
+    <div class="pt-bar"><div class="fl"><label for="pt-prov">Provinsi</label><select id="pt-prov">${daftarProv.map(n => `<option${n === prov ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></div>
+      <a class="btn sek kecil" href="#/direktori${qs({ provinsi: prov })}">Lihat sebagai daftar</a><a class="btn sek kecil" href="#/sebaran">Peta sebaran nasional</a></div>
+    ${t.length === 0 ? `<div class="kosong-hal"><p>Belum ada titik lokasi pesantren untuk ${esc(prov)}.</p></div>` : `<div class="pt-grid">
+      <div class="pt-peta" id="pt-peta" role="region" aria-label="Peta titik pondok ${esc(prov)}"></div>
+      <aside class="pt-daftar" aria-label="Daftar pesantren bertitik"><div class="fl"><label for="pt-q">Cari pesantren</label><input id="pt-q" type="search" autocomplete="off"></div><ul id="pt-list"></ul></aside></div>
+      ${L ? '' : '<div class="galat" style="margin-top:12px">Peta dasar tidak dapat dimuat. Periksa koneksi internet; daftar di samping tetap bisa dipakai dan setiap pesantren punya tautan Google Maps.</div>'}`}
+    <p class="kecil muted peta-kredit">Peta dasar © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors. Titik bersumber dari tautan Google Maps yang diisi pengelola pesantren, sehingga letaknya perlu dicek langsung bila akan dikunjungi.</p></div>`;
+  $('#pt-prov').onchange = e => go('/peta/' + encodeURIComponent(e.target.value));
+  if (!t.length) return;
+  const ulEl = $('#pt-list'), pen = {};
+  const baris = list => { ulEl.innerHTML = list.length ? list.map(x => `<li><button type="button" class="pt-item" data-id="${esc(x.id)}"><b>${esc(x.nama)}</b><span class="muted kecil">${esc(x.kab_kota || '')}${x.santri ? ' · ' + ang(x.santri) + ' santri' : ''}</span></button></li>`).join('') : '<li class="muted kecil" style="padding:8px">Tidak ada yang cocok.</li>'; };
+  baris(t);
+  $('#pt-q').oninput = debounce(e => { const q = e.target.value.trim().toLowerCase(); baris(q ? t.filter(x => (x.nama + ' ' + x.kab_kota).toLowerCase().includes(q)) : t); }, 150);
+  if (!L) { ulEl.onclick = e => { const b = e.target.closest('.pt-item'); if (!b) return; const x = t.find(y => y.id === b.dataset.id); if (x) window.open(urlGmaps(x.lat, x.lng), '_blank', 'noopener'); }; return; }
+  const peta = L.map('pt-peta', { scrollWheelZoom: false, zoomControl: true }); petaInst = peta;
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>' }).addTo(peta);
+  peta.on('focus', () => peta.scrollWheelZoom.enable()); peta.on('blur', () => peta.scrollWheelZoom.disable());
+  const warnaUtama = (getComputedStyle(document.documentElement).getPropertyValue('--h700') || '').trim() || '#1f6b4a';
+  const radius = n => n >= 1000 ? 13 : n >= 300 ? 11 : n >= 100 ? 9 : 7;
+  const grup = L.featureGroup().addTo(peta);
+  t.forEach(x => {
+    const m = L.circleMarker([x.lat, x.lng], { radius: radius(x.santri), color: '#fff', weight: 2, fillColor: warnaUtama, fillOpacity: .88 }).addTo(grup);
+    m.bindPopup(`<div class="pt-pop"><b><a href="#/pesantren/${esc(x.id)}">${esc(x.nama)}</a></b><div>${esc(x.kab_kota || '')}</div>${x.santri ? `<div>${ang(x.santri)} santri</div>` : ''}<div class="pt-pop-aksi"><a href="#/pesantren/${esc(x.id)}">Lihat profil</a><a href="${esc(urlGmaps(x.lat, x.lng))}" target="_blank" rel="noopener noreferrer">Buka di Google Maps</a></div></div>`);
+    m.on('popupopen', () => { $$('.pt-item.aktif', el).forEach(b => b.classList.remove('aktif')); const b = $('.pt-item[data-id="' + x.id + '"]', el); if (b) { b.classList.add('aktif'); b.scrollIntoView({ block: 'nearest' }); } });
+    pen[x.id] = { m, x };
+  });
+  peta.fitBounds(grup.getBounds(), { padding: [34, 34], maxZoom: t.length === 1 ? 14 : 12 });
+  ulEl.onclick = e => { const b = e.target.closest('.pt-item'); if (!b) return; const k = pen[b.dataset.id]; if (!k) return; peta.flyTo([k.x.lat, k.x.lng], Math.max(peta.getZoom(), 13), { duration: .6 }); setTimeout(() => k.m.openPopup(), 650); $('#pt-peta').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
+  setTimeout(() => peta.invalidateSize(), 80);
+}
+
+/* ====================================================================
+   PANEL: TITIK PETA (memproses tautan Maps menjadi koordinat)
+   ==================================================================== */
+async function pagePanelPeta({ el, ok }) {
+  if (!perluStaf(el)) return;
+  document.title = 'Titik peta — Panel';
+  el.innerHTML = muat();
+  let st = await api('petaStatus');
+  if (!ok()) return;
+  const gambar = () => {
+    el.innerHTML = `<div class="wrap"><div class="judul-hal"><h1 style="font-size:clamp(1.5rem,3vw,2.1rem)">Titik peta pondok</h1></div>${tabPanel('/panel/peta')}
+      <p class="muted" style="max-width:72ch;margin:0 0 16px">Titik pada peta provinsi dibaca dari kolom tautan Google Maps di profil pesantren. Tautan yang memuat koordinat dibaca langsung, tautan pendek (maps.app.goo.gl) dibuka lewat server, dan sisanya bisa diisi manual di bawah.</p>
+      <div class="pm-tiles" role="group" aria-label="Ringkasan titik peta">
+        <div class="pm-tile"><b>${ang(st.dengan_url)}</b><span>Pesantren dengan tautan Maps</span></div>
+        <div class="pm-tile"><b>${ang(st.bertitik)}</b><span>Sudah bertitik di peta</span></div>
+        <div class="pm-tile"><b>${ang(st.tertunda)}</b><span>Menunggu diproses</span></div>
+        <div class="pm-tile"><b>${ang(st.gagal)}</b><span>Tidak terbaca, perlu diisi manual</span></div>
+      </div>
+      ${st.boleh_proses ? `<div class="bk-bar" style="margin-top:14px"><span class="bk-info" id="pp-info" role="status" aria-live="polite">${st.tertunda ? ang(st.tertunda) + ' tautan siap diproses.' : 'Semua tautan sudah diproses.'}</span>
+        <span class="aksi-baris"><button type="button" class="btn" id="pp-proses"${st.tertunda ? '' : ' disabled'}>Proses tautan Maps</button><button type="button" class="btn sek" id="pp-ulang"${st.gagal ? '' : ' disabled'}>Coba ulang yang gagal</button></span></div>` : `<p class="muted kecil" style="margin-top:14px">Pemrosesan tautan dilakukan oleh operator pusat. Anda bisa mengisi titik secara manual untuk pesantren di cakupan Anda.</p>`}
+      <h2 style="font-size:1.2rem;margin:26px 0 8px">Perlu diisi manual (${ang(st.gagal)})</h2>
+      ${st.daftar_gagal.length ? `<div class="tabel-bungkus"><table class="tbl"><thead><tr><th>Pesantren</th><th>Isi kolom Maps saat ini</th><th>Koordinat atau tautan Google Maps</th></tr></thead><tbody>
+        ${st.daftar_gagal.map(o => `<tr data-id="${esc(o.id)}"><td class="potong"><a href="#/pesantren/${esc(o.id)}">${esc(o.nama)}</a><div class="muted kecil">${esc([o.kab_kota, o.provinsi].filter(Boolean).join(', '))}</div></td>
+          <td class="potong kecil">${esc(o.url)}${/^https:\/\//.test(o.url) ? `<div><a href="${esc(o.url.match(/^https:\/\/\S+/)[0])}" target="_blank" rel="noopener noreferrer">Buka tautan</a></div>` : ''}${o.kode_pendek ? '<div class="muted">Kode plus tanpa nama daerah lengkap.</div>' : ''}</td>
+          <td><div class="aksi-baris"><label class="sr" for="kx-${esc(o.id)}">Koordinat untuk ${esc(o.nama)}</label><input id="kx-${esc(o.id)}" class="kx" type="text" placeholder="-7.9797, 112.6304" autocomplete="off" style="min-width:190px"><button type="button" class="btn sek kecil" data-simpan="${esc(o.id)}">Simpan</button></div><div class="galat-baris kecil" role="alert"></div></td></tr>`).join('')}
+        </tbody></table></div><p class="muted kecil" style="margin-top:8px">Cara mengambil koordinat: buka Google Maps, tekan lama atau klik kanan pada lokasi pondok, lalu klik angka koordinat yang muncul untuk menyalinnya.</p>` : '<div class="kosong-hal"><p>Tidak ada tautan yang gagal dibaca.</p></div>'}</div>`;
+    const info = $('#pp-info');
+    const jalankan = async ulang => {
+      $$('#pp-proses, #pp-ulang', el).forEach(b => { b.disabled = true; });
+      let tot = { baca: 0, gagal: 0 };
+      try {
+        for (let i = 0; i < 60; i++) {
+          info.textContent = 'Memproses tautan… ' + (i ? ang(tot.baca) + ' terbaca, ' + ang(tot.gagal) + ' gagal.' : '');
+          const r = await api('petaProses', { ulang_gagal: ulang && i === 0 });
+          tot.baca += r.langsung + r.dibuka; tot.gagal += r.gagal;
+          if (!r.sisa || (r.langsung + r.dibuka + r.gagal) === 0) break;
+        }
+        toast(ang(tot.baca) + ' titik berhasil dibaca, ' + ang(tot.gagal) + ' perlu diisi manual.');
+      } catch (e) { toast(e.message || 'Pemrosesan terhenti. Coba lagi.', 'galat'); }
+      try { st = await api('petaStatus'); } catch (e) { }
+      if (ok()) gambar();
+    };
+    if ($('#pp-proses')) { $('#pp-proses').onclick = () => jalankan(false); $('#pp-ulang').onclick = () => jalankan(true); }
+    el.onclick = async e => {
+      const b = e.target.closest('[data-simpan]'); if (!b) return;
+      const tr = b.closest('tr'), inp = $('.kx', tr), gl = $('.galat-baris', tr); gl.textContent = '';
+      if (!inp.value.trim()) { gl.textContent = 'Isi koordinat atau tautan Google Maps.'; inp.focus(); return; }
+      b.disabled = true;
+      try { await api('petaSet', { id: b.dataset.simpan, teks: inp.value.trim() }); toast('Titik peta tersimpan.'); st = await api('petaStatus'); if (ok()) gambar(); }
+      catch (er) { gl.textContent = er.message || 'Gagal menyimpan.'; b.disabled = false; }
+    };
+  };
   gambar();
 }
 
