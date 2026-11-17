@@ -153,7 +153,7 @@ input[readonly],input:disabled,select:disabled,textarea:disabled{background:var(
 
 /* direktori */
 .judul-hal{padding:34px 0 18px}
-.filter{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,1fr)) auto;gap:10px;align-items:end;padding:16px 0;border-top:1px solid var(--garis);border-bottom:1px solid var(--garis)}
+.filter{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(4,minmax(0,1fr)) auto;gap:10px;align-items:end;padding:16px 0;border-top:1px solid var(--garis);border-bottom:1px solid var(--garis)}
 .hasil-info{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 0 6px;color:var(--tinta2);font-size:.95rem}
 .daftar{list-style:none;margin:0;padding:0}
 .baris{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1.5fr) 7.5rem;gap:18px;padding:15px 0;border-bottom:1px solid var(--garis2);align-items:start}
@@ -399,6 +399,9 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
 }
 .hero-band .lead{color:var(--h200)}
 .hero-band .cari{max-width:700px;gap:8px}
+.hero-band .cari.ada-kab{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
+.hero-band .cari.ada-kab .fl:first-child{grid-column:1/-1}
+.cari .fl[hidden]{display:none}
 .hero-band .cari input,.hero-band .cari select{min-height:44px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:#fff;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);transition:background-color .2s,border-color .2s,color .2s,box-shadow .2s}
 .hero-band .cari input::placeholder{color:rgba(255,255,255,.72);opacity:1}
 .hero-band .cari select option{color:var(--tinta,#1b2b22);background:#fff}
@@ -595,6 +598,8 @@ footer a{color:#fff}
   .cari{grid-template-columns:1fr}
   .hero-band .cari{grid-template-columns:minmax(0,1fr) auto}
   .hero-band .cari .fl:first-child{grid-column:1/-1}
+  .hero-band .cari.ada-kab{grid-template-columns:minmax(0,1fr) auto}
+  .hero-band .cari.ada-kab .fl:nth-child(2){grid-column:1/-1}
   .grid-form{grid-template-columns:1fr}
   .baris{grid-template-columns:1fr auto;gap:8px 14px}
   .baris .jenjang{grid-column:1/-1;grid-row:2}
@@ -1097,12 +1102,12 @@ function keluar(pesan) {
   go('/');
   renderNav();
 }
-const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'petaTitik', 'pemeliharaan']);
+const PUBLIC_ACTIONS = new Set(['ping', 'publicMeta', 'publicList', 'publicProfile', 'publicStats', 'publicKab', 'refKab', 'refKec', 'petaTitik', 'pemeliharaan']);
 /* ---- cache data di browser (5 menit) ----
    Hasil baca dari server disimpan di localStorage, dikunci per pengguna + aksi + parameter.
    Setiap aksi tulis menghapus seluruh cache; tombol "Perbarui data" juga menghapusnya. */
 const CACHE_TTL = 5 * 60 * 1000, CACHE_PRE = 'lp2pp.c.', CACHE_MAKS = 400000;
-const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan', 'rekapPembaruan', 'petaTitik']);
+const CACHE_AKSI = new Set(['publicMeta', 'publicList', 'publicProfile', 'publicStats', 'publicKab', 'refKab', 'refKec', 'meta', 'get', 'list', 'stats', 'listUsers', 'reviewList', 'logList', 'listUndangan', 'rekapPembaruan', 'petaTitik']);
 const AKSI_TULIS = new Set(['update', 'create', 'verify', 'uploadDoc', 'deleteDoc', 'setSampul', 'saveUser', 'resetPassword', 'reviewMark', 'saveConfig', 'uploadAsset', 'simpanIsian', 'tambahIsian', 'buatUndangan', 'putuskanUndangan', 'changePassword', 'verifyBulk', 'petaSet', 'petaProses', 'setPemeliharaan']);
 const cacheMem = {}, cacheJalan = {};
 function cacheKey(action, params) {
@@ -1216,6 +1221,12 @@ async function pubMeta() {
   if (!S.pubMeta) S.pubMeta = await api('publicMeta');
   return S.pubMeta;
 }
+/* Kabupaten/kota yang punya pesantren, per provinsi. Gagal dimuat = filter kabupaten tidak tampil, halaman tetap jalan. */
+async function pubKab() {
+  if (!S.pubKab) { try { S.pubKab = await api('publicKab'); } catch (e) { S.pubKab = {}; } }
+  return S.pubKab;
+}
+const opsiKab = (daftar, cur, kosong) => `<option value="">${kosong}</option>` + (daftar || []).map(k => `<option value="${esc(k)}" ${k === cur ? 'selected' : ''}>${esc(k)}</option>`).join('');
 async function authMeta() {
   if (!S.authMeta) S.authMeta = await api('meta');
   return S.authMeta;
@@ -1687,7 +1698,7 @@ async function pageBeranda({ el, ok }) {
   clearInterval(sliderTimer);
   document.title = judulSitus();
   el.innerHTML = muat();
-  const [st] = await Promise.all([api('publicStats'), pubMeta()]);
+  const [st, , kabMap] = await Promise.all([api('publicStats'), pubMeta(), pubKab()]);
   if (!ok()) return;
   S.stats = st; renderNav();
   const B = S.cfg.beranda, r = st.ringkasan, heroImg = asetAman(B.hero_gambar);
@@ -1709,6 +1720,7 @@ async function pageBeranda({ el, ok }) {
     <form class="cari" id="form-cari" role="search">
       <div class="fl"><label class="sr" for="c-q">Nama pesantren atau daerah</label><input id="c-q" type="search" placeholder="Nama pesantren atau daerah" autocomplete="off"></div>
       <div class="fl"><label class="sr" for="c-prov">Provinsi</label><select id="c-prov"><option value="">Semua provinsi</option>${opsiProv}</select></div>
+      <div class="fl" hidden><label class="sr" for="c-kab">Kabupaten/kota</label><select id="c-kab"><option value="">Semua kabupaten/kota</option></select></div>
       <button class="btn" type="submit" aria-label="Cari pesantren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>Cari</button>
     </form>
   </div>${B.tampil_angka ? `<dl class="hero-sekilas" aria-label="Sekilas data">
@@ -1745,7 +1757,12 @@ async function pageBeranda({ el, ok }) {
     <div class="potret-ctrl"><button class="pc-btn" id="sl-prev" type="button" aria-label="Foto sebelumnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="pc-btn" id="sl-next" type="button" aria-label="Foto berikutnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="pc-hitung" id="sl-hitung" aria-live="off"></span></div>
     <div class="slider-dots" id="slider-dots" hidden></div>
   </div></div></section>` : ''}`;
-  $('#form-cari').onsubmit = e => { e.preventDefault(); go('/direktori' + qs({ q: $('#c-q').value.trim(), provinsi: $('#c-prov').value })); };
+  $('#c-prov').onchange = () => {
+    const fm = $('#form-cari'), kb = $('#c-kab'), d = kabMap[$('#c-prov').value] || [];
+    kb.innerHTML = opsiKab(d, '', 'Semua kabupaten/kota');
+    kb.parentNode.hidden = !d.length; fm.classList.toggle('ada-kab', d.length > 0);
+  };
+  $('#form-cari').onsubmit = e => { e.preventDefault(); go('/direktori' + qs({ q: $('#c-q').value.trim(), provinsi: $('#c-prov').value, kab_kota: $('#c-prov').value ? $('#c-kab').value : '' })); };
   pasangPeta(el, st.per_provinsi);
   if (B.tampil_sorotan || B.tampil_potret) muatFotoSorotan(sorot, ok);
 }
@@ -1863,7 +1880,7 @@ function chipList(s) { return String(s || '').split(',').map(x => x.trim()).filt
 async function pageDirektori({ el, q, ok }) {
   document.title = 'Direktori pesantren — ' + judulSitus();
   el.innerHTML = muat();
-  const meta = await pubMeta();
+  const [meta, kabMap] = await Promise.all([pubMeta(), pubKab()]);
   if (!ok()) return;
   const sel = (arr, cur, kosong) => `<option value="">${kosong}</option>` + arr.map(o => `<option value="${esc(o.nilai)}" ${o.nilai === cur ? 'selected' : ''}>${esc(o.label || o.nilai)}</option>`).join('');
   el.innerHTML = `
@@ -1872,6 +1889,7 @@ async function pageDirektori({ el, q, ok }) {
     <form class="filter" id="form-f" role="search">
       <div class="fl"><label for="f-q">Cari nama atau daerah</label><input id="f-q" type="search" value="${esc(q.q || '')}" autocomplete="off"></div>
       <div class="fl"><label for="f-prov">Provinsi</label><select id="f-prov">${sel(meta.provinsi, q.provinsi, 'Semua provinsi')}</select></div>
+      <div class="fl"><label for="f-kab">Kabupaten/kota</label><select id="f-kab" ${q.provinsi && (kabMap[q.provinsi] || []).length ? '' : 'disabled'}>${opsiKab(kabMap[q.provinsi], q.kab_kota, q.provinsi ? 'Semua kabupaten/kota' : 'Pilih provinsi dulu')}</select></div>
       <div class="fl"><label for="f-lay">Satuan pendidikan</label><select id="f-lay">${sel(meta.opsi.layanan_pendidikan || [], q.layanan, 'Semua')}</select></div>
       <div class="fl"><label for="f-urut">Urutkan</label><select id="f-urut">
         ${[['nama', 'Nama (A–Z)'], ['santri', 'Santri terbanyak'], ['tahun', 'Paling lama berdiri'], ['provinsi', 'Provinsi']].map(([v, t]) => `<option value="${v}" ${(q.urut || 'nama') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
@@ -1879,13 +1897,18 @@ async function pageDirektori({ el, q, ok }) {
     </form>
     <div id="hasil" aria-live="polite">${muat()}</div>
   </div>`;
-  $('#form-f').onsubmit = e => { e.preventDefault(); go('/direktori' + qs({ q: $('#f-q').value.trim(), provinsi: $('#f-prov').value, layanan: $('#f-lay').value, urut: $('#f-urut').value })); };
-  const data = await api('publicList', { q: q.q, provinsi: q.provinsi, layanan: q.layanan, urut: q.urut, halaman: q.halaman, per_halaman: 20 });
+  $('#f-prov').onchange = () => {
+    const kb = $('#f-kab'), d = kabMap[$('#f-prov').value] || [];
+    kb.innerHTML = opsiKab(d, '', $('#f-prov').value ? 'Semua kabupaten/kota' : 'Pilih provinsi dulu');
+    kb.disabled = !d.length;
+  };
+  $('#form-f').onsubmit = e => { e.preventDefault(); go('/direktori' + qs({ q: $('#f-q').value.trim(), provinsi: $('#f-prov').value, kab_kota: $('#f-prov').value ? $('#f-kab').value : '', layanan: $('#f-lay').value, urut: $('#f-urut').value })); };
+  const data = await api('publicList', { q: q.q, provinsi: q.provinsi, kab_kota: q.provinsi ? q.kab_kota : '', layanan: q.layanan, urut: q.urut, halaman: q.halaman, per_halaman: 20 });
   if (!ok()) return;
-  const basis = { q: q.q, provinsi: q.provinsi, layanan: q.layanan, urut: q.urut };
+  const basis = { q: q.q, provinsi: q.provinsi, kab_kota: q.provinsi ? q.kab_kota : '', layanan: q.layanan, urut: q.urut };
   $('#hasil').innerHTML = data.total === 0
-    ? `<div class="kosong-hal"><h2>Tidak ada pesantren yang cocok</h2><p style="margin-top:8px">Coba kata kunci yang lebih pendek, atau pilih “Semua provinsi”.</p><p style="margin-top:14px"><a class="btn sek" href="#/direktori">Hapus semua filter</a></p></div>`
-    : `<div class="hasil-info"><span><b>${ang(data.total)}</b> pesantren${q.provinsi ? ' di ' + esc(q.provinsi) : ''}</span><span>Halaman ${data.halaman} dari ${data.jumlah_halaman}</span></div>
+    ? `<div class="kosong-hal"><h2>Tidak ada pesantren yang cocok</h2><p style="margin-top:8px">Coba kata kunci yang lebih pendek, atau pilih “Semua provinsi” dan “Semua kabupaten/kota”.</p><p style="margin-top:14px"><a class="btn sek" href="#/direktori">Hapus semua filter</a></p></div>`
+    : `<div class="hasil-info"><span><b>${ang(data.total)}</b> pesantren${q.provinsi ? ' di ' + esc(q.kab_kota ? q.kab_kota + ', ' + q.provinsi : q.provinsi) : ''}</span><span>Halaman ${data.halaman} dari ${data.jumlah_halaman}</span></div>
     <ul class="daftar">${data.item.map(o => `<li class="baris">
       <div><a class="nama" href="#/pesantren/${esc(o.id)}">${esc(o.nama)}</a><div class="lok">${esc([o.kecamatan, o.kab_kota, o.provinsi].filter(Boolean).join(', '))}${o.tahun_berdiri ? ' · berdiri ' + esc(o.tahun_berdiri) : ''}</div></div>
       <div class="jenjang chips">${chipList(o.layanan_pendidikan)}</div>
