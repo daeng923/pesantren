@@ -160,8 +160,8 @@ input[readonly],input:disabled,select:disabled,textarea:disabled{background:var(
 .baris .nama{font:700 1.05rem/1.25 var(--judul);color:var(--h900);text-decoration:none}
 .baris .nama:hover{text-decoration:underline}
 .baris .lok{font-size:.9rem;color:var(--tinta2);margin-top:3px}
-.baris .idn{display:flex;flex-wrap:wrap;gap:2px 16px;margin-top:4px;font-size:.85rem;color:var(--tinta3);font-variant-numeric:tabular-nums}
-.baris .idn b{font-weight:600;color:var(--tinta2)}
+.baris .idn{white-space:nowrap;font-variant-numeric:tabular-nums}
+.baris .idn b{font-weight:600}
 .baris .santri{text-align:right;font-variant-numeric:tabular-nums}
 .baris .santri b{display:block;font:700 1.15rem var(--judul)}
 .baris .santri span{font-size:.875rem;color:var(--tinta3)}
@@ -1912,7 +1912,7 @@ async function pageDirektori({ el, q, ok }) {
     ? `<div class="kosong-hal"><h2>Tidak ada pesantren yang cocok</h2><p style="margin-top:8px">Coba kata kunci yang lebih pendek, atau pilih “Semua provinsi” dan “Semua kabupaten/kota”.</p><p style="margin-top:14px"><a class="btn sek" href="#/direktori">Hapus semua filter</a></p></div>`
     : `<div class="hasil-info"><span><b>${ang(data.total)}</b> pesantren${q.provinsi ? ' di ' + esc(q.kab_kota ? q.kab_kota + ', ' + q.provinsi : q.provinsi) : ''}</span><span>Halaman ${data.halaman} dari ${data.jumlah_halaman}</span></div>
     <ul class="daftar">${data.item.map(o => `<li class="baris">
-      <div><a class="nama" href="#/pesantren/${esc(o.id)}">${esc(o.nama)}</a><div class="lok">${esc([o.kecamatan, o.kab_kota, o.provinsi].filter(Boolean).join(', '))}${o.tahun_berdiri ? ' · berdiri ' + esc(o.tahun_berdiri) : ''}</div>${(o.nsp || o.nrpm) ? `<div class="idn">${o.nsp ? `<span>NSP <b>${esc(o.nsp)}</b></span>` : ''}${o.nrpm ? `<span>NRPM <b>${esc(o.nrpm)}</b></span>` : ''}</div>` : ''}</div>
+      <div><a class="nama" href="#/pesantren/${esc(o.id)}">${esc(o.nama)}</a><div class="lok">${esc([o.kecamatan, o.kab_kota, o.provinsi].filter(Boolean).join(', '))}${o.tahun_berdiri ? ' · berdiri ' + esc(o.tahun_berdiri) : ''}${o.nsp ? ` · <span class="idn">NSP <b>${esc(o.nsp)}</b></span>` : ''}${o.nrpm ? ` · <span class="idn">NRPM <b>${esc(o.nrpm)}</b></span>` : ''}</div></div>
       <div class="jenjang chips">${chipList(o.layanan_pendidikan)}</div>
       <div class="santri"><b>${o.santri_total === '' ? '—' : ang(o.santri_total)}</b><span>santri</span></div>
     </li>`).join('')}</ul>${paginasi('/direktori', basis, data.halaman, data.jumlah_halaman)}`;
